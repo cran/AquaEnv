@@ -22,7 +22,7 @@ convert <- function(x, ...)
 aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325, d=0, lat=0,
                     SumCO2=0, SumNH4=0, SumH2S=0, SumH3PO4=0, SumSiOH4=0, SumHNO3=0, SumHNO2=0, 
                     SumBOH3=NULL, SumH2SO4=NULL, SumHF=NULL,
-                    TA=NULL, pH=NULL, pCO2=NULL, CO2=NULL,
+                    TA=NULL, pH=NULL, fCO2=NULL, CO2=NULL,
                     speciation=TRUE,
                     dsa=FALSE,
                     ae=NULL,
@@ -38,7 +38,10 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
                     k_hso4=NULL,
                     k_hf=NULL,
                     k1k2="roy",
-                    khf="dickson")
+                    khf="dickson",
+                    khso4="dickson",
+                    fCO2atm=0.000390,
+                    fO2atm=0.20946)
   { 
     if (from.data.frame)
       {
@@ -46,14 +49,14 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
       }
     else if (!is.null(ae))
       {
-        return (cloneaquaenv(ae, TA=TA, pH=pH, k_co2=k_co2, k1k2=k1k2, khf=khf))
+        return (cloneaquaenv(ae, TA=TA, pH=pH, k_co2=k_co2, k1k2=k1k2, khf=khf, khso4=khso4))
       }
     else
       {
         aquaenv <- list()
         attr(aquaenv, "class") <- "aquaenv"
 
-        aquaenv[["S"]]           <- S                   ; attr(aquaenv[["S"]], "unit")           <- "psu"        
+        aquaenv[["S"]]           <- S                   ; attr(aquaenv[["S"]], "unit")           <- "p2su"        
         aquaenv[["t"]]           <- t                   ; attr(aquaenv[["t"]], "unit")           <- "deg C"
         aquaenv[["p"]]           <- p                   ; attr(aquaenv[["p"]], "unit")           <- "bar"
 
@@ -65,8 +68,8 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
         aquaenv[["P"]]           <- p+Pa                ; attr(aquaenv[["P"]], "unit")           <- "bar"
         aquaenv[["Pa"]]          <- Pa                  ; attr(aquaenv[["Pa"]], "unit")           <- "bar"
         aquaenv[["d"]]           <- round(watdepth(P=p+Pa, lat=lat),2) ; attr(aquaenv[["d"]], "unit")      <- "m"
- 
-        aquaenv[["density"]]     <- seadensity(t,S)    ; attr(aquaenv[["density"]], "unit")      <- "kg/m3"
+
+        aquaenv[["density"]]     <- seadensity(t,S)     ; attr(aquaenv[["density"]], "unit")      <- "kg/m3"
         
         aquaenv[["SumCO2"]]      <- SumCO2              
         aquaenv[["SumNH4"]]      <- SumNH4              ; attr(aquaenv[["SumNH4"]], "unit")       <- "mol/kg-soln"
@@ -105,7 +108,7 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
 
         if(!skeleton)
           {
-            aquaenv[["SumBr"]]       <- seaconc("Br", S)    ; attr(aquaenv[["SumBr"]], "unit")        <- "mol/kg-soln"
+            aquaenv[["Br"]]          <- seaconc("Br", S)    ; attr(aquaenv[["Br"]], "unit")        <- "mol/kg-soln"
             
             aquaenv[["ClConc"]]      <- seaconc("Cl", S)    ; attr(aquaenv[["ClConc"]], "unit")       <- "mol/kg-soln"
             aquaenv[["Na"]]          <- seaconc("Na", S)    ; attr(aquaenv[["Na"]], "unit")           <- "mol/kg-soln"
@@ -119,7 +122,7 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
             
             aquaenv[["molal2molin"]] <- molal2molin(S)      ; attr(aquaenv[["molal2molin"]], "unit")  <- "(mol/kg-soln)/(mol/kg-H2O)"
             
-            scaleconvs <- scaleconvert(S, t, p, SumH2SO4, SumHF, khf=khf)
+            scaleconvs <- scaleconvert(S, t, p, SumH2SO4, SumHF, khf=khf, khso4=khso4)
             aquaenv[["free2tot"]]    <- scaleconvs$free2tot ; attr(aquaenv[["free2tot"]], "pH scale") <- "free -> tot"
             aquaenv[["free2sws"]]    <- scaleconvs$free2sws ; attr(aquaenv[["free2sws"]], "pH scale") <- "free -> sws"
             aquaenv[["tot2free"]]    <- scaleconvs$tot2free ; attr(aquaenv[["tot2free"]], "pH scale") <- "total -> free"
@@ -130,16 +133,19 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
         
             aquaenv[["K0_CO2"]]      <- K0_CO2  (S, t)
             aquaenv[["K0_O2"]]       <- K0_O2   (S, t)
+
+            aquaenv[["fCO2atm"]]     <- fCO2atm             ; attr(aquaenv[["fCO2atm"]], "unit")      <- "atm"
+            aquaenv[["fO2atm"]]      <- fO2atm              ; attr(aquaenv[["fO2atm"]], "unit")       <- "atm"
             
-            aquaenv[["CO2_sat"]]     <- Fugacity$CO2 * aquaenv[["K0_CO2"]] ; attr(aquaenv[["CO2_sat"]], "unit")  <- "mol/kg-soln"
-            aquaenv[["O2_sat"]]      <- Fugacity$O2  * aquaenv[["K0_O2"]]  ; attr(aquaenv[["O2_sat"]],  "unit")  <- "mol/kg-soln"
+            aquaenv[["CO2_sat"]]     <- aquaenv[["fCO2atm"]] * aquaenv[["K0_CO2"]] ; attr(aquaenv[["CO2_sat"]], "unit")  <- "mol/kg-soln"
+            aquaenv[["O2_sat"]]      <- aquaenv[["fO2atm"]]  * aquaenv[["K0_O2"]]  ; attr(aquaenv[["O2_sat"]],  "unit")  <- "mol/kg-soln"
           }
 
         len <- max(length(t), length(S), length(p))
         
         if (is.null(k_w))
           {
-            aquaenv[["K_W"]]         <- K_W(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
+            aquaenv[["K_W"]]         <- K_W(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
           }
         else
           {
@@ -148,7 +154,7 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
 
         if (is.null(k_hso4))
           {    
-            aquaenv[["K_HSO4"]]      <- K_HSO4(S, t, p)
+            aquaenv[["K_HSO4"]]      <- K_HSO4(S, t, p, khso4)
           }
         else
           {
@@ -157,16 +163,7 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
 
         if (is.null(k_hf))
           {
-            if (khf=="perez")  # "perez": using seacarb
-              {                        # To convert from the total to the free scale, only K_HSO4 is needed. That's why we do not need to call "convert" with
-                                       # the option khf="perez" here. Otherwise the cat would also bite its own tail
-                aquaenv[["K_HF"]]   <- convert(Kf(S=S, T=t, P=aquaenv[["p"]], kf="pf"), "KHscale", "tot2free", S=S, t=t, p=p,
-                                               SumH2SO4=(SumH2SO4 + SumH2SO4_Koffset), SumHF=(SumHF + SumHF_Koffset))
-              }
-            else # if(khf=="dickson")
-              {
-                aquaenv[["K_HF"]]    <- K_HF(S, t, p)
-              }
+            aquaenv[["K_HF"]]    <- K_HF(S, t, p, SumH2SO4=(SumH2SO4 + SumH2SO4_Koffset), SumHF=(SumHF + SumHF_Koffset), khf=khf, khso4=khso4)
           }
         else
         {
@@ -175,16 +172,7 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
 
         if (is.null(k_co2))
           {
-            if (k1k2=="lueker") # "lueker": using seacarb 
-              {  # To convert from the total to the free scale, only K_HSO4 is needed. That's why we do not need to call "convert" with the option khf set
-                aquaenv[["K_CO2"]]   <- convert(K1(S=S, T=t, P=aquaenv[["p"]], k1k2="l"), "KHscale", "tot2free", S=S, t=t, p=p,
-                                                SumH2SO4=(SumH2SO4 + SumH2SO4_Koffset), SumHF=(SumHF + SumHF_Koffset))
-              }
-            else #if (k1k2=="roy")
-              {
-                aquaenv[["K_CO2"]]    <- K_CO2 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-              }
-            
+            aquaenv[["K_CO2"]]    <- K_CO2 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, k1k2=k1k2, khf=khf, khso4=khso4)
           }
         else
           {
@@ -193,15 +181,7 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
 
         if (is.null(k_hco3))
           {
-            if (k1k2=="lueker") # "lueker" using seacarb
-              {
-                aquaenv[["K_HCO3"]]  <- convert(K2(S=S, T=t, P=aquaenv[["p"]], k1k2="l"), "KHscale", "tot2free", S=S, t=t, p=p,
-                                                SumH2SO4=(SumH2SO4 + SumH2SO4_Koffset), SumHF=(SumHF + SumHF_Koffset))
-              }
-            else #if (k1k2=="roy")
-              {  # To convert from the total to the free scale, only K_HSO4 is needed. That's why we do not need to call "convert" with the option khf set
-                aquaenv[["K_HCO3"]]  <- K_HCO3(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-              }
+            aquaenv[["K_HCO3"]]  <- K_HCO3(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, k1k2=k1k2, khf=khf, khso4=khso4)
           }
         else
           {
@@ -210,20 +190,20 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
 
         if (is.null(k_boh3))
           {
-            aquaenv[["K_BOH3"]]      <- K_BOH3(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
+            aquaenv[["K_BOH3"]]      <- K_BOH3(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
           }
         else
           {
             aquaenv[["K_BOH3"]]      <- eval(att(rep(k_boh3,len)))
           }
         
-        aquaenv[["K_NH4"]]       <- K_NH4   (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-        aquaenv[["K_H2S"]]       <- K_H2S   (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)  
-        aquaenv[["K_H3PO4"]]     <- K_H3PO4 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-        aquaenv[["K_H2PO4"]]     <- K_H2PO4 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-        aquaenv[["K_HPO4"]]      <- K_HPO4  (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-        aquaenv[["K_SiOH4"]]     <- K_SiOH4 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)
-        aquaenv[["K_SiOOH3"]]    <- K_SiOOH3(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset)  
+        aquaenv[["K_NH4"]]       <- K_NH4   (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
+        aquaenv[["K_H2S"]]       <- K_H2S   (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)  
+        aquaenv[["K_H3PO4"]]     <- K_H3PO4 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
+        aquaenv[["K_H2PO4"]]     <- K_H2PO4 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
+        aquaenv[["K_HPO4"]]      <- K_HPO4  (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
+        aquaenv[["K_SiOH4"]]     <- K_SiOH4 (S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)
+        aquaenv[["K_SiOOH3"]]    <- K_SiOOH3(S, t, p, SumH2SO4 + SumH2SO4_Koffset, SumHF + SumHF_Koffset, khf=khf, khso4=khso4)  
         
         aquaenv[["K_HNO2"]]      <- PhysChemConst$K_HNO2    ; attr(aquaenv[["K_HNO2"]], "unit")       <- "mol/kg-soln; mol/kg-H2O; mol/l"
         aquaenv[["K_HNO3"]]      <- PhysChemConst$K_HNO3    ; attr(aquaenv[["K_HNO3"]], "unit")       <- "mol/kg-soln; mol/kg-H2O; mol/l"
@@ -236,75 +216,75 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
             aquaenv[["Ksp_aragonite"]]  <- Ksp_aragonite(S, t, p)
           }
                
-        if (!(is.null(TA) && is.null(pH) && is.null(pCO2) && is.null(CO2)))
+        if (!(is.null(TA) && is.null(pH) && is.null(fCO2) && is.null(CO2)))
           {
             if (is.null(SumCO2))
               {
                 if (!is.null(pH))
                   {
-                    if (!is.null(pCO2))
+                    if (!is.null(fCO2))
                       {
-                        CO2    <- aquaenv[["K0_CO2"]] * pCO2
+                        CO2    <- aquaenv[["K0_CO2"]] * fCO2
                         SumCO2 <- calcSumCO2_pH_CO2(aquaenv, pH, CO2)
                         TA     <- calcTA(c(aquaenv, list(SumCO2, "SumCO2")), 10^(-pH))
                       }
                     else if (!is.null(CO2))
                       {
                         SumCO2 <- calcSumCO2_pH_CO2(aquaenv, pH, CO2)
-                        pCO2   <- CO2 / aquaenv[["K0_CO2"]]
+                        fCO2   <- CO2 / aquaenv[["K0_CO2"]]
                         TA     <- calcTA(c(aquaenv, list(SumCO2, "SumCO2")), 10^(-pH))
                       }
                     else if (!is.null(TA))
                       {
                         SumCO2 <- calcSumCO2_pH_TA(aquaenv, pH, TA)
                         CO2    <- H2Abi(SumCO2, aquaenv[["K_CO2"]], aquaenv[["K_HCO3"]], 10^(-pH))
-                        pCO2   <- CO2 / aquaenv[["K0_CO2"]]
+                        fCO2   <- CO2 / aquaenv[["K0_CO2"]]
                       }
                     else
                       {
                         print(paste("Error! Underdetermined system!"))
-                        print("To calculate [SumCO2], please enter one pair of: (pH/CO2), (pH,pCO2), (TA,pH), (TA/CO2), (TA/pCO2)")
+                        print("To calculate [SumCO2], please enter one pair of: (pH/CO2), (pH,fCO2), (TA,pH), (TA/CO2), (TA/fCO2)")
                         return(NULL) 
                       }
                   }
                 else if (!is.null(TA))
                   {
-                    if (!is.null(pCO2))
+                    if (!is.null(fCO2))
                       {
-                        CO2    <- aquaenv[["K0_CO2"]] * pCO2
+                        CO2    <- aquaenv[["K0_CO2"]] * fCO2
                         SumCO2 <- calcSumCO2_TA_CO2(aquaenv, TA, CO2) 
                         pH     <- -log10(calcH_TA(c(aquaenv, list(SumCO2, "SumCO2")), TA))
                       }
                     else if (!is.null(CO2))
                       {
                         SumCO2 <- calcSumCO2_TA_CO2(aquaenv, TA, CO2)
-                        pCO2   <- CO2 / aquaenv[["K0_CO2"]]
+                        fCO2   <- CO2 / aquaenv[["K0_CO2"]]
                         pH     <- -log10(calcH_TA(c(aquaenv, list(SumCO2, "SumCO2")), TA))
                       }
                     else
                       {
                         print(paste("Error! Underdetermined system!"))
-                        print("To calculate [SumCO2], please enter one pair of: (pH/CO2), (pH,pCO2), (TA,pH), (TA/CO2), (TA/pCO2)")
+                        print("To calculate [SumCO2], please enter one pair of: (pH/CO2), (pH,fCO2), (TA,pH), (TA/CO2), (TA/fCO2)")
                         return(NULL) 
                       }
                   }
                 else
                   {
                     print(paste("Error! Underdetermined system!"))
-                    print("To calculate [SumCO2], please enter one pair of: (pH/CO2), (pH,pCO2), (TA,pH), (TA/CO2), (TA/pCO2)")
+                    print("To calculate [SumCO2], please enter one pair of: (pH/CO2), (pH,fCO2), (TA,pH), (TA/CO2), (TA/fCO2)")
                     return(NULL) 
                   }
               }
             else
               {        
-                if (is.null(pCO2) && is.null(CO2) && !is.null(pH) && !is.null(TA))
+                if (is.null(fCO2) && is.null(CO2) && !is.null(pH) && !is.null(TA))
                   {
                     TAcalc <- calcTA(aquaenv, 10^(-pH))
                     print(paste("Error! Overdetermined system: entered TA:", TA, ", calculated TA:", TAcalc))
-                    print("Please enter only one of: pH, TA, CO2, or pCO2.")
+                    print("Please enter only one of: pH, TA, CO2, or fCO2.")
                     return(NULL)
                   }
-                if ((!is.null(pH) || !is.null(TA)) && (is.null(pCO2) && is.null(CO2)))
+                if ((!is.null(pH) || !is.null(TA)) && (is.null(fCO2) && is.null(CO2)))
                   {
                     if (!is.null(pH))
                       {
@@ -318,61 +298,61 @@ aquaenv <- function(S, t, p=pmax((P-Pa), gauge_p(d, lat, Pa)), P=Pa, Pa=1.01325,
                       }
                     CO2  <- H2Abi(SumCO2, aquaenv[["K_CO2"]], aquaenv[["K_HCO3"]], 10^(-pH))
                     attributes(CO2) <- NULL
-                    pCO2 <- CO2 / aquaenv[["K0_CO2"]]
-                    attributes(pCO2) <- NULL
+                    fCO2 <- CO2 / aquaenv[["K0_CO2"]]
+                    attributes(fCO2) <- NULL
                   }
-                else if (!is.null(pCO2) && !is.null(CO2) && is.null(pH) && is.null(TA))
+                else if (!is.null(fCO2) && !is.null(CO2) && is.null(pH) && is.null(TA))
                   {
-                    pCO2calc <- CO2 / aquaenv[["K0_CO2"]]
-                    print(paste("Error! Overdetermined system: entered pCO2:", pCO2, ", calculated pCO2:", pCO2calc))
-                    print("Please enter only one of: pH, TA, CO2, or pCO2.")
+                    fCO2calc <- CO2 / aquaenv[["K0_CO2"]]
+                    print(paste("Error! Overdetermined system: entered fCO2:", fCO2, ", calculated fCO2:", fCO2calc))
+                    print("Please enter only one of: pH, TA, CO2, or fCO2.")
                     return(NULL)
                   }
-                else if ((!is.null(pCO2) || !is.null(CO2)) && (is.null(pH) && is.null(TA)))
+                else if ((!is.null(fCO2) || !is.null(CO2)) && (is.null(pH) && is.null(TA)))
                   {
-                    if(!is.null(pCO2))
+                    if(!is.null(fCO2))
                       {
-                        CO2 <- aquaenv[["K0_CO2"]] * pCO2
+                        CO2 <- aquaenv[["K0_CO2"]] * fCO2
                         attributes(CO2) <- NULL
                       }
                     else
                       {
-                        pCO2 <- CO2 / aquaenv[["K0_CO2"]]
-                        attributes(pCO2) <- NULL
+                        fCO2 <- CO2 / aquaenv[["K0_CO2"]]
+                        attributes(fCO2) <- NULL
                       }
                     H   <- calcH_CO2(aquaenv, CO2)
                     TA  <- calcTA(aquaenv, H)
                     pH <- -log10(H)
                   }
-                else if ((!is.null(pCO2) || !is.null(CO2)) && !is.null(pH) && is.null(TA))
+                else if ((!is.null(fCO2) || !is.null(CO2)) && !is.null(pH) && is.null(TA))
                   {
-                    if (!is.null(pCO2))
+                    if (!is.null(fCO2))
                       {
-                        CO2 <- aquaenv[["K0_CO2"]] * pCO2
+                        CO2 <- aquaenv[["K0_CO2"]] * fCO2
                       }
                     pHcalc <- -log10(calcH_CO2(aquaenv, CO2))
                     print(paste("Error! Overdetermined system: entered pH:", pH, ", calculated pH:", pHcalc))
-                    print("Please enter only one of: pH, TA, CO2, or pCO2.")
+                    print("Please enter only one of: pH, TA, CO2, or fCO2.")
                     return(NULL)
                   }
-                else if ((!is.null(pCO2) || !is.null(CO2)) && is.null(pH) && !is.null(TA))
+                else if ((!is.null(fCO2) || !is.null(CO2)) && is.null(pH) && !is.null(TA))
                   {
-                    if (!is.null(pCO2))
+                    if (!is.null(fCO2))
                       {
-                        CO2 <- aquaenv[["K0_CO2"]] * pCO2
+                        CO2 <- aquaenv[["K0_CO2"]] * fCO2
                       }
                     H   <- calcH_CO2(aquaenv, CO2)
                     TAcalc <- calcTA(aquaenv, H)
                     print(paste("Error! Overdetermined system: entered TA:", TA, ", calculated TA:", TAcalc))
-                    print("Please enter only one of: pH, TA, CO2, or pCO2.")
+                    print("Please enter only one of: pH, TA, CO2, or fCO2.")
                     return(NULL)
                   }
               }
             
-            aquaenv[["TA"]]     <- TA     ;  attr(aquaenv[["TA"]], "unit")     <- "mol/kg-soln"
-            aquaenv[["pH"]]     <- pH     ;  attr(aquaenv[["pH"]], "pH scale") <- "free"
+            aquaenv[["TA"]]     <- TA     ; attr(aquaenv[["TA"]], "unit")      <- "mol/kg-soln"
+            aquaenv[["pH"]]     <- pH     ; attr(aquaenv[["pH"]], "pH scale")  <- "free"
             aquaenv[["SumCO2"]] <- SumCO2 ; attr(aquaenv[["SumCO2"]], "unit")  <- "mol/kg-soln"
-            aquaenv[["pCO2"]]   <- pCO2   ; attr(aquaenv[["pCO2"]], "unit")    <- "atm"
+            aquaenv[["fCO2"]]   <- fCO2   ; attr(aquaenv[["fCO2"]], "unit")    <- "atm"
             aquaenv[["CO2"]]    <- CO2    ; attr(aquaenv[["CO2"]], "unit")     <- "mol/kg-soln"
             
             

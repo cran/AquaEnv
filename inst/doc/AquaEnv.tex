@@ -60,7 +60,7 @@ as well as additionally the electrode standard potential ($\rm E_0$) and the fir
   Netherlands Institute of Ecology (NIOO)\\
   4401 NT Yerseke, Netherlands
   E-mail: \email{a.hofmann@nioo.knaw.nl}\\
-  URL: \url{http://www.nioo.knaw.nl/ppages/ahofmann}\\
+  URL: \url{http://www.nioo.knaw.nl/users/ahofmann}\\
 }
 
 
@@ -111,10 +111,10 @@ $\rm H_3PO4$\citep{Millero1995}, $\rm H_2PO4^-$ \citep{Millero1995}, $HPO4^{2-}$
 $\rm SiOOH3^-$ \citep{Wischmeyer2003}, $\rm HNO2$ \citep{Riordan2005}, $\rm HNO3$,  $\rm H2SO4$ \citep{Atkins1996}, $\rm HS$ \citep{Atkins1996} mostly calculated 
 as functions of temperature and salinity and pressure corrected according to \cite{Millero1995}.
 \item the solubility products of calcite and aragonite \citep{Mucci1983} as well as the associated $\Omega$'s if a full speciation is calculated (see below)
-\item the partial pressure of $\rm CO_2$ - if a full speciation is calculated (see below)
-\item if $[\rm \sum CO_2]$ and pH are given $[\rm TA]$ is calculated, if $[\rm \sum CO_2]$ and $[\rm TA]$ are given pH is calculated, if $[\rm \sum CO_2]$ and $\rm [CO_2]$ or p$\rm CO_2$
+\item the fugacity of $\rm CO_2$ - if a full speciation is calculated (see below)
+\item if $[\rm \sum CO_2]$ and pH are given $[\rm TA]$ is calculated, if $[\rm \sum CO_2]$ and $[\rm TA]$ are given pH is calculated, if $[\rm \sum CO_2]$ and $\rm [CO_2]$ or f$\rm CO_2$
 are given, pH and $[\rm TA]$ are calculated.
-\item if either one of the pairs pH and  $\rm [CO_2]$ or p$\rm CO_2$, pH and $[\rm TA]$, or $[\rm TA]$ and $\rm [CO_2]$ or p$\rm CO_2$ is given, $[\rm \sum CO_2]$ is calculated
+\item if either one of the pairs pH and  $\rm [CO_2]$ or f$\rm CO_2$, pH and $[\rm TA]$, or $[\rm TA]$ and $\rm [CO_2]$ or f$\rm CO_2$ is given, $[\rm \sum CO_2]$ is calculated
 \item if sufficient information is given and the flag \texttt{speciation=TRUE} is set, a full speciation of $[\rm \sum CO2]$, $[\rm \sum NH4]$, $[\rm \sum H_2S]$, $[\rm \sum HNO3]$,  $[\rm \sum HNO2]$,
  $[\rm \sum H_3PO4]$, $[\rm \sum Si(OH)_4]$, $[\rm \sum B(OH)_3]$, $[\rm \sum H_2SO_4]$, $[\rm \sum HF]$, as well as water itself is calculated
 \item if the flag \texttt{revelle=TRUE} is set, the revelle factor \citep{Zeebe2001} is calculated.
@@ -200,7 +200,7 @@ Maximally, i.e., if the enough input data is supplied to define the pH of the sy
 \texttt{SumBOH3}     & mol/kg-soln                  & $[\rm \sum B(OH)_3]$, total borates concentration\\
 \texttt{SumH2SO4}    & mol/kg-soln                  & $[\rm \sum H_2SO_4]$, total sulfate concentration\\
 \texttt{SumHF}       & mol/kg-soln                  & $[\rm \sum HF]$, total fluoride concentration\\
-\texttt{SumBr}       & mol/kg-soln                  & $[\rm \sum HBr]$, total bromide concentration\\
+\texttt{Br}          & mol/kg-soln                  & $[\rm Br^-]$, bromide concentration\\
 \texttt{ClConc}      & mol/kg-soln                  & $[\rm Cl^-]$, chloride concentration\\
 \texttt{Na}          & mol/kg-soln                  & $[\rm Na^{+}]$, sodium concentration\\
 \texttt{Mg}          & mol/kg-soln                  & $[\rm Mg^{2+}]$, magnesium concentration\\
@@ -216,8 +216,10 @@ Maximally, i.e., if the enough input data is supplied to define the pH of the sy
 \texttt{sws2tot}     & -                            & pH conversion factor: seawater scale to total scale\\ 
 \texttt{K0\_CO2}     & mol/(kg-soln*atm)            & Henry's constant for $\rm CO_2$\\ 
 \texttt{K0\_O2}      & mol/(kg-soln*atm)            & Henry's constant for $\rm O_2$\\ 
-\texttt{CO2\_sat}    & mol/kg-soln                  & $\rm CO_2$ saturation concentration at an atmospheric partial pressure/fugacity of Fugacity\$CO2\\
-\texttt{O2\_sat}     & mol/kg-soln                  & $\rm O_2$ saturation concentration at an atmospheric partial pressure/fugacity of Fugacity\$O2\\
+\texttt{fCO2atm}     & atm                          & atmospheric fugacity of CO$_2$\\
+\texttt{fO2atm}      & atm                          & atmospheric fugacity of O$_2$\\
+\texttt{CO2\_sat}    & mol/kg-soln                  & $\rm CO_2$ saturation concentration at an atmospheric fugacity of \texttt{fCO2atm}\\
+\texttt{O2\_sat}     & mol/kg-soln                  & $\rm O_2$ saturation concentration at an atmospheric  fugacity of \texttt{fO2atm}\\
 \texttt{K\_W}        &(mol/kg-soln)$^2$, free pH scale & stoichiometric equilibrium ion product of \\
             &                              & $\rm H_2O$: $\rm K^*_W = [H^+][OH-]$\\
 \texttt{K\_HSO4}     &mol/kg-soln,       free pH scale & stoichiometric equilibrium constant \\
@@ -258,7 +260,7 @@ Maximally, i.e., if the enough input data is supplied to define the pH of the sy
             &                                 & $\rm Ksp^*_{ara} = [Ca^{2+}][CO_3^{2-}]$\\
 \texttt{TA}          & mol/kg-soln                     & [TA], total alkalinity\\
 \texttt{pH}          & -, free scale                   & pH\\              
-\texttt{pCO2}        & atm,                            & partial pressure (~fugacity) of $\rm CO_2$ in the water\\
+\texttt{fCO2}        & atm,                            & fugacity of $\rm CO_2$ in the water (i.e. in a small volume of air equilibrated with the water)\\
 \texttt{CO2}         & mol/kg-soln                     & $[\rm CO_2]$\\         
 \texttt{HCO3}        & mol/kg-soln                     & $[\rm HCO_3^-]$\\         
 \texttt{CO3}         & mol/kg-soln                     & $[\rm CO_3^{2-}]$\\         
@@ -430,16 +432,16 @@ attr(,"unit")
  [9] "d"             "density"       "SumCO2"        "SumNH4"       
 [13] "SumH2S"        "SumHNO3"       "SumHNO2"       "SumH3PO4"     
 [17] "SumSiOH4"      "SumBOH3"       "SumH2SO4"      "SumHF"        
-[21] "SumBr"         "ClConc"        "Na"            "Mg"           
+[21] "Br"            "ClConc"        "Na"            "Mg"           
 [25] "Ca"            "K"             "Sr"            "molal2molin"  
 [29] "free2tot"      "free2sws"      "tot2free"      "tot2sws"      
 [33] "sws2free"      "sws2tot"       "K0_CO2"        "K0_O2"        
-[37] "CO2_sat"       "O2_sat"        "K_W"           "K_HSO4"       
-[41] "K_HF"          "K_CO2"         "K_HCO3"        "K_BOH3"       
-[45] "K_NH4"         "K_H2S"         "K_H3PO4"       "K_H2PO4"      
-[49] "K_HPO4"        "K_SiOH4"       "K_SiOOH3"      "K_HNO2"       
-[53] "K_HNO3"        "K_H2SO4"       "K_HS"          "Ksp_calcite"  
-[57] "Ksp_aragonite"
+[37] "fCO2atm"       "fO2atm"        "CO2_sat"       "O2_sat"       
+[41] "K_W"           "K_HSO4"        "K_HF"          "K_CO2"        
+[45] "K_HCO3"        "K_BOH3"        "K_NH4"         "K_H2S"        
+[49] "K_H3PO4"       "K_H2PO4"       "K_HPO4"        "K_SiOH4"      
+[53] "K_SiOOH3"      "K_HNO2"        "K_HNO3"        "K_H2SO4"      
+[57] "K_HS"          "Ksp_calcite"   "Ksp_aragonite"
 \end{Soutput}
 \end{Schunk}
 
@@ -557,7 +559,7 @@ A minimal set of elements in an object of class \textit{aquaenv} can be obtained
 
 \subsubsection{Defining the complete \textit{aquaenv} system in different ways}
 If enough information is given to define a complete speciation, i.e. either one of the pairs
-SumCO2 and pH, SumCO2 and TA, SumCO2 and CO2, or SumCO2 and pCO2, 
+SumCO2 and pH, SumCO2 and TA, SumCO2 and CO2, or SumCO2 and fCO2, 
 a full \textit{aquaenv} system can be defined.
 
 
@@ -569,13 +571,13 @@ a full \textit{aquaenv} system can be defined.
 > SumCO2 <- 0.002
 > pH <- 8
 > TA <- 0.002142233
-> pCO2 <- 0.0005272996
+> fCO2 <- 0.0005272996
 > CO2 <- 2.031241e-05
 > ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH)
 > ae$TA
 \end{Sinput}
 \begin{Soutput}
-[1] 0.002142233
+[1] 0.002142243
 attr(,"unit")
 [1] "mol/kg-soln"
 \end{Soutput}
@@ -584,7 +586,7 @@ attr(,"unit")
 > ae$pH
 \end{Sinput}
 \begin{Soutput}
-[1] 8.000001
+[1] 7.999976
 attr(,"pH scale")
 [1] "free"
 \end{Soutput}
@@ -593,7 +595,7 @@ attr(,"pH scale")
 > ae$pH
 \end{Sinput}
 \begin{Soutput}
-[1] 8
+[1] 7.999975
 attr(,"pH scale")
 [1] "free"
 \end{Soutput}
@@ -606,24 +608,24 @@ attr(,"pH scale")
  [9] "d"               "density"         "SumCO2"          "SumNH4"         
 [13] "SumH2S"          "SumHNO3"         "SumHNO2"         "SumH3PO4"       
 [17] "SumSiOH4"        "SumBOH3"         "SumH2SO4"        "SumHF"          
-[21] "SumBr"           "ClConc"          "Na"              "Mg"             
+[21] "Br"              "ClConc"          "Na"              "Mg"             
 [25] "Ca"              "K"               "Sr"              "molal2molin"    
 [29] "free2tot"        "free2sws"        "tot2free"        "tot2sws"        
 [33] "sws2free"        "sws2tot"         "K0_CO2"          "K0_O2"          
-[37] "CO2_sat"         "O2_sat"          "K_W"             "K_HSO4"         
-[41] "K_HF"            "K_CO2"           "K_HCO3"          "K_BOH3"         
-[45] "K_NH4"           "K_H2S"           "K_H3PO4"         "K_H2PO4"        
-[49] "K_HPO4"          "K_SiOH4"         "K_SiOOH3"        "K_HNO2"         
-[53] "K_HNO3"          "K_H2SO4"         "K_HS"            "Ksp_calcite"    
-[57] "Ksp_aragonite"   "TA"              "pH"              "pCO2"           
-[61] "CO2"             "HCO3"            "CO3"             "BOH3"           
-[65] "BOH4"            "OH"              "H3PO4"           "H2PO4"          
-[69] "HPO4"            "PO4"             "SiOH4"           "SiOOH3"         
-[73] "SiO2OH2"         "H2S"             "HS"              "S2min"          
-[77] "NH4"             "NH3"             "H2SO4"           "HSO4"           
-[81] "SO4"             "HF"              "F"               "HNO3"           
-[85] "NO3"             "HNO2"            "NO2"             "omega_calcite"  
-[89] "omega_aragonite"
+[37] "fCO2atm"         "fO2atm"          "CO2_sat"         "O2_sat"         
+[41] "K_W"             "K_HSO4"          "K_HF"            "K_CO2"          
+[45] "K_HCO3"          "K_BOH3"          "K_NH4"           "K_H2S"          
+[49] "K_H3PO4"         "K_H2PO4"         "K_HPO4"          "K_SiOH4"        
+[53] "K_SiOOH3"        "K_HNO2"          "K_HNO3"          "K_H2SO4"        
+[57] "K_HS"            "Ksp_calcite"     "Ksp_aragonite"   "TA"             
+[61] "pH"              "fCO2"            "CO2"             "HCO3"           
+[65] "CO3"             "BOH3"            "BOH4"            "OH"             
+[69] "H3PO4"           "H2PO4"           "HPO4"            "PO4"            
+[73] "SiOH4"           "SiOOH3"          "SiO2OH2"         "H2S"            
+[77] "HS"              "S2min"           "NH4"             "NH3"            
+[81] "H2SO4"           "HSO4"            "SO4"             "HF"             
+[85] "F"               "HNO3"            "NO3"             "HNO2"           
+[89] "NO2"             "omega_calcite"   "omega_aragonite"
 \end{Soutput}
 \end{Schunk}
 
@@ -641,17 +643,17 @@ the calculation of the full speciation can be toggled off. Furthermore, the flag
  [9] "d"             "density"       "SumCO2"        "SumNH4"       
 [13] "SumH2S"        "SumHNO3"       "SumHNO2"       "SumH3PO4"     
 [17] "SumSiOH4"      "SumBOH3"       "SumH2SO4"      "SumHF"        
-[21] "SumBr"         "ClConc"        "Na"            "Mg"           
+[21] "Br"            "ClConc"        "Na"            "Mg"           
 [25] "Ca"            "K"             "Sr"            "molal2molin"  
 [29] "free2tot"      "free2sws"      "tot2free"      "tot2sws"      
 [33] "sws2free"      "sws2tot"       "K0_CO2"        "K0_O2"        
-[37] "CO2_sat"       "O2_sat"        "K_W"           "K_HSO4"       
-[41] "K_HF"          "K_CO2"         "K_HCO3"        "K_BOH3"       
-[45] "K_NH4"         "K_H2S"         "K_H3PO4"       "K_H2PO4"      
-[49] "K_HPO4"        "K_SiOH4"       "K_SiOOH3"      "K_HNO2"       
-[53] "K_HNO3"        "K_H2SO4"       "K_HS"          "Ksp_calcite"  
-[57] "Ksp_aragonite" "TA"            "pH"            "pCO2"         
-[61] "CO2"          
+[37] "fCO2atm"       "fO2atm"        "CO2_sat"       "O2_sat"       
+[41] "K_W"           "K_HSO4"        "K_HF"          "K_CO2"        
+[45] "K_HCO3"        "K_BOH3"        "K_NH4"         "K_H2S"        
+[49] "K_H3PO4"       "K_H2PO4"       "K_HPO4"        "K_SiOH4"      
+[53] "K_SiOOH3"      "K_HNO2"        "K_HNO3"        "K_H2SO4"      
+[57] "K_HS"          "Ksp_calcite"   "Ksp_aragonite" "TA"           
+[61] "pH"            "fCO2"          "CO2"          
 \end{Soutput}
 \begin{Sinput}
 > ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH, speciation = FALSE, 
@@ -665,7 +667,7 @@ the calculation of the full speciation can be toggled off. Furthermore, the flag
 [19] "SumH2SO4" "SumHF"    "K_W"      "K_HSO4"   "K_HF"     "K_CO2"   
 [25] "K_HCO3"   "K_BOH3"   "K_NH4"    "K_H2S"    "K_H3PO4"  "K_H2PO4" 
 [31] "K_HPO4"   "K_SiOH4"  "K_SiOOH3" "K_HNO2"   "K_HNO3"   "K_H2SO4" 
-[37] "K_HS"     "TA"       "pH"       "pCO2"     "CO2"     
+[37] "K_HS"     "TA"       "pH"       "fCO2"     "CO2"     
 \end{Soutput}
 \end{Schunk}
 
@@ -674,12 +676,12 @@ setting the flag \texttt{dsa} to \texttt{TRUE}. The revelle factor can be calcul
 
 \begin{Schunk}
 \begin{Sinput}
-> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pCO2 = pCO2, dsa = TRUE, 
+> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, fCO2 = fCO2, dsa = TRUE, 
 +     revelle = TRUE)
 > ae$dTAdH
 \end{Sinput}
 \begin{Soutput}
-[1] -17223.15
+[1] -17222.15
 attr(,"unit")
 [1] "(mol-TA/kg-soln)/(mol-H/kg-soln)"
 attr(,"pH scale")
@@ -689,7 +691,7 @@ attr(,"pH scale")
 > ae$revelle
 \end{Sinput}
 \begin{Soutput}
-[1] 13.71646
+[1] 13.71635
 \end{Soutput}
 \end{Schunk}
 
@@ -698,46 +700,46 @@ If an ambivalent situation is created because the user enters too much informati
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, CO2 = CO2, pCO2 = pCO2)
+> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, CO2 = CO2, fCO2 = fCO2)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered pCO2: 0.0005272996 , calculated pCO2: 0.00052729949660769"
-[1] "Please enter only one of: pH, TA, CO2, or pCO2."
+[1] "Error! Overdetermined system: entered fCO2: 0.0005272996 , calculated fCO2: 0.00052729949660769"
+[1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \begin{Sinput}
 > ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH, TA = TA)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered TA: 0.002142233 , calculated TA: 0.00214223255670385"
-[1] "Please enter only one of: pH, TA, CO2, or pCO2."
+[1] "Error! Overdetermined system: entered TA: 0.002142233 , calculated TA: 0.00214224262579018"
+[1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \begin{Sinput}
 > ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH, CO2 = CO2)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered pH: 8 , calculated pH: 8.00000005830982"
-[1] "Please enter only one of: pH, TA, CO2, or pCO2."
+[1] "Error! Overdetermined system: entered pH: 8 , calculated pH: 7.9999746670567"
+[1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \begin{Sinput}
-> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH, pCO2 = pCO2)
+> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH, fCO2 = fCO2)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered pH: 8 , calculated pH: 7.9999999769315"
-[1] "Please enter only one of: pH, TA, CO2, or pCO2."
+[1] "Error! Overdetermined system: entered pH: 8 , calculated pH: 7.99997458567836"
+[1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \begin{Sinput}
 > ae <- aquaenv(S, t, p, SumCO2 = SumCO2, TA = TA, CO2 = CO2)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered TA: 0.002142233 , calculated TA: 0.00214223257982823"
-[1] "Please enter only one of: pH, TA, CO2, or pCO2."
+[1] "Error! Overdetermined system: entered TA: 0.002142233 , calculated TA: 0.00214223257912512"
+[1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \begin{Sinput}
-> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, TA = TA, pCO2 = pCO2)
+> ae <- aquaenv(S, t, p, SumCO2 = SumCO2, TA = TA, fCO2 = fCO2)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered TA: 0.002142233 , calculated TA: 0.00214223254755539"
-[1] "Please enter only one of: pH, TA, CO2, or pCO2."
+[1] "Error! Overdetermined system: entered TA: 0.002142233 , calculated TA: 0.00214223254685228"
+[1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \end{Schunk}
 \end{scriptsize}
@@ -747,11 +749,11 @@ If an ambivalent situation is created because the user enters too much informati
 \subsubsection{Calculating $\rm [\sum CO_2]$} 
 
 
-$\rm [\sum CO_2]$ can be calculated by giving a constant pair of either pH and CO2, pH and pCO2, pH and TA, TA and CO2, or TA and pCO2  
+$\rm [\sum CO_2]$ can be calculated by giving a constant pair of either pH and CO2, pH and fCO2, pH and TA, TA and CO2, or TA and fCO2  
 
 \begin{Schunk}
 \begin{Sinput}
-> pCO2 <- 0.0006943363
+> fCO2 <- 0.0006943363
 > CO2 <- 2.674693e-05
 > pH <- 7.884892
 > TA <- 0.0021
@@ -762,16 +764,16 @@ $\rm [\sum CO_2]$ can be calculated by giving a constant pair of either pH and C
 > ae$SumCO2
 \end{Sinput}
 \begin{Soutput}
-[1] 0.002000000
+[1] 0.00200012
 attr(,"unit")
 [1] "mol/kg-soln"
 \end{Soutput}
 \begin{Sinput}
-> ae <- aquaenv(S, t, p, SumCO2 = NULL, pH = pH, pCO2 = pCO2)
+> ae <- aquaenv(S, t, p, SumCO2 = NULL, pH = pH, fCO2 = fCO2)
 > ae$SumCO2
 \end{Sinput}
 \begin{Soutput}
-[1] 0.002000000
+[1] 0.002000120
 attr(,"unit")
 [1] "mol/kg-soln"
 \end{Soutput}
@@ -780,7 +782,7 @@ attr(,"unit")
 > ae$SumCO2
 \end{Sinput}
 \begin{Soutput}
-[1] 0.002
+[1] 0.001999992
 attr(,"unit")
 [1] "mol/kg-soln"
 \end{Soutput}
@@ -794,7 +796,7 @@ attr(,"unit")
 [1] "mol/kg-soln"
 \end{Soutput}
 \begin{Sinput}
-> ae <- aquaenv(S, t, p, SumCO2 = NULL, TA = TA, pCO2 = pCO2)
+> ae <- aquaenv(S, t, p, SumCO2 = NULL, TA = TA, fCO2 = fCO2)
 > ae$SumCO2
 \end{Sinput}
 \begin{Soutput}
@@ -885,7 +887,7 @@ Data in other concentration units or pH scales can be converted using the functi
 > ae$pH
 \end{Sinput}
 \begin{Soutput}
-[1] 8
+[1] 8.004386
 attr(,"pH scale")
 [1] "free"
 \end{Soutput}
@@ -917,8 +919,8 @@ for which a vector is given.
 > ae$revelle
 \end{Sinput}
 \begin{Soutput}
- [1] 17.55768 17.25173 16.94929 16.65084 16.35681 16.06758 15.78345 15.50468
- [9] 15.23150 14.96406 14.70250 14.44691 14.19736 13.95387 13.71646
+ [1] 17.55733 17.25138 16.94892 16.65047 16.35644 16.06720 15.78307 15.50430
+ [9] 15.23112 14.96368 14.70212 14.44654 14.19698 13.95350 13.71609
 \end{Soutput}
 \end{Schunk}
 
@@ -1058,7 +1060,7 @@ Two further examples
 
 \begin{Schunk}
 \begin{Sinput}
-> ae <- aquaenv(S = 20:30, t = 15, SumCO2 = NULL, pH = pH, pCO2 = pCO2)
+> ae <- aquaenv(S = 20:30, t = 15, SumCO2 = NULL, pH = pH, fCO2 = fCO2)
 > plot(ae, xval = 20:30, xlab = "S")
 \end{Sinput}
 \end{Schunk}
@@ -1133,7 +1135,7 @@ This command calculated the buffer factor and the partial derivatives of [TA] wi
 > ae$dTAdH
 \end{Sinput}
 \begin{Soutput}
-[1] -17141.96
+[1] -17142.02
 attr(,"unit")
 [1] "(mol-TA/kg-soln)/(mol-H/kg-soln)"
 attr(,"pH scale")
@@ -1143,7 +1145,7 @@ attr(,"pH scale")
 > ae$dTAdSumCO2
 \end{Sinput}
 \begin{Soutput}
-[1] 1.045936
+[1] 1.045937
 attr(,"unit")
 [1] "(mol-TA/kg-soln)/(mol-SumCO2/kg-soln)"
 \end{Soutput}
@@ -1157,7 +1159,7 @@ equilibrium constant with one of their variables (i.e., S, T, d, SumH2SO4, od Su
 > ae$dTAdKdKdS
 \end{Sinput}
 \begin{Soutput}
-[1] 3.986483e-06
+[1] 3.986489e-06
 attr(,"unit")
 [1] "(mol-TA/kg-soln)/\"psu\""
 \end{Soutput}
@@ -1165,7 +1167,7 @@ attr(,"unit")
 > ae$dTAdKdKdSumH2SO4
 \end{Sinput}
 \begin{Soutput}
-[1] -0.001086849
+[1] -0.001086872
 attr(,"unit")
 [1] "(mol-TA/kg-soln)/(mol-SumH2SO4/kg-soln)"
 \end{Soutput}
@@ -1178,7 +1180,7 @@ Furthermore, the ionization fractions used for the pH dependent fractional stoic
 > ae$c1
 \end{Sinput}
 \begin{Soutput}
-[1] 0.01025973
+[1] 0.01025967
 \end{Soutput}
 \end{Schunk}
 
@@ -1906,7 +1908,7 @@ Then, a selection of elements can be plotted as a function of the added titrant 
 \begin{Schunk}
 \begin{Sinput}
 > what <- c("TA", "pH", "CO2", "HCO3", "CO3", "BOH3", "BOH4", "OH", 
-+     "NH4", "NH3", "H2SO4", "HSO4", "SO4", "HF", "F", "pCO2")
++     "NH4", "NH3", "H2SO4", "HSO4", "SO4", "HF", "F", "fCO2")
 > plot(ae, xval = ae$delta_mass_titrant, xlab = "HCl solution added [kg]", 
 +     what = what, size = c(12, 8), mfrow = c(4, 4), newdevice = FALSE)
 \end{Sinput}
@@ -2007,7 +2009,7 @@ Plotting selectively
 \begin{Schunk}
 \begin{Sinput}
 > what <- c("TA", "pH", "CO2", "HCO3", "CO3", "BOH3", "BOH4", "OH", 
-+     "NH4", "NH3", "H2SO4", "HSO4", "SO4", "HF", "F", "pCO2")
++     "NH4", "NH3", "H2SO4", "HSO4", "SO4", "HF", "F", "fCO2")
 > plot(ae, xval = ae$delta_mass_titrant, xlab = "NaOH solution added [kg]", 
 +     what = what, size = c(12, 8), mfrow = c(4, 4))
 > plot(ae, xval = ae$pH, xlab = "free scale pH", what = what, size = c(12, 
@@ -2061,7 +2063,7 @@ Plotting selectively and with different elements for \texttt{xval}
 \begin{Schunk}
 \begin{Sinput}
 > what <- c("TA", "pH", "CO2", "HCO3", "CO3", "BOH3", "BOH4", "OH", 
-+     "NH4", "NH3", "H2SO4", "HSO4", "SO4", "HF", "F", "pCO2")
++     "NH4", "NH3", "H2SO4", "HSO4", "SO4", "HF", "F", "fCO2")
 > plot(ae, xval = ae$delta_mass_titrant, xlab = "HCl solution added [kg]", 
 +     what = what, size = c(12, 8), mfrow = c(4, 4))
 > plot(ae, xval = ae$pH, xlab = "free scale pH", what = what, size = c(12, 
@@ -2261,7 +2263,7 @@ attr(,"unit")
 [1] "mol/kg-soln"
 
 $sumofsquares
-[1] 0
+[1] 5.522026e-30
 \end{Soutput}
 \end{Schunk}
 Thus, we see that \texttt{TAfit} calculates the correct SumCO2 and TA values.\\
@@ -2388,7 +2390,7 @@ attr(,"pH scale")
 [1] "free"
 
 $sumofsquares
-[1] 9.387445e-29
+[1] 7.37585e-29
 \end{Soutput}
 \end{Schunk}
 
@@ -2430,17 +2432,17 @@ Finally, some "noise" is added to the generated data
 \end{Sinput}
 \begin{Soutput}
 $TA
-[1] 0.002149220
+[1] 0.002248516
 attr(,"unit")
 [1] "mol/kg-soln"
 
 $SumCO2
-[1] 0.001957570
+[1] 0.002054665
 attr(,"unit")
 [1] "mol/kg-soln"
 
 $sumofsquares
-[1] 0.06340143
+[1] 0.07294948
 \end{Soutput}
 \end{Schunk}
 
@@ -2802,7 +2804,7 @@ attr(,"unit")
 [1] "mol/kg-soln"
 
 $sumofsquares
-[1] 1.587199e-20
+[1] 1.587192e-20
 \end{Soutput}
 \end{Schunk}
 
@@ -2827,12 +2829,14 @@ Feistel2008      & \cite{Feistel2008}\\
 Fofonoff1983     & \cite{Fofonoff1983}\\
 Follows2006      & \cite{Follows2006}\\
 Hofmann2008      & \cite{Hofmann2008}\\
+Khoo1977         & \cite{Khoo1977}\\
 Lewis1998        & \cite{Lewis1998}\\
 Lueker2000       & \cite{Lueker2000}\\
 Millero1981      & \cite{Millero1981}\\
 Millero1988      & \cite{Millero1988}\\
 Millero1995      & \cite{Millero1995}\\
 Millero1995a     & \cite{Millero1995a}\\
+Millero2006      & \cite{Millero2006}\\
 Mucci1983        & \cite{Mucci1983}\\
 Perez1987a       & \cite{Perez1987a}\\
 Riordan2005      & \cite{Riordan2005}\\
@@ -2844,6 +2848,7 @@ Wischmeyer2003   & \cite{Wischmeyer2003}\\
 Zeebe2001        & \cite{Zeebe2001}\\
 \end{tabular}
 
+\clearpage
 
 \section{References for the elements of an object of class \textit{aquaenv}} \label{app: references}
 \begin{footnotesize}
@@ -2856,7 +2861,7 @@ atmospheric pressure \texttt{Pa} at sea level as well as the definition of total
 Note that the approximation I/(mol/kg-solution) $\approx$ 0.0199201 \; \texttt{S} is given in \citet[  p. 428.]{Millero1982}.
 This relationship converted into mol/kg-$\rm H_2O$ and the last digits adjusted (from 0.0199201 to 0.019924) results in the formula used here.\\
 density     & \citet{Millero1981} and \citet[chapter 5, p. 6f]{DOE1994}.\\
-\texttt{SumBr}, \texttt{ClConc}, \texttt{Na}, \texttt{Mg}, \texttt{Ca}, \texttt{K}, \texttt{Sr} & \citet[ chapter 5, p.11]{DOE1994}\\    
+\texttt{Br}, \texttt{ClConc}, \texttt{Na}, \texttt{Mg}, \texttt{Ca}, \texttt{K}, \texttt{Sr} & \citet[ chapter 5, p.11]{DOE1994}\\    
 \texttt{molal2molin} & \citet[ p.257]{Roy1993b}, and  \citet[chapter 5, p. 15]{DOE1994}\\
 \texttt{free2tot}, \texttt{tot2free}  & \citet[p.2302]{Dickson1984}, \citet[ chapter 4, p.16]{DOE1994}, \citet[p.57, 261]{Zeebe2001}\\
 \texttt{free2sws}, \texttt{tot2sws}, \texttt{sws2free}, \texttt{sws2tot} &  \citet[p.2303]{Dickson1984}, \citet[ p.57]{Zeebe2001}\\
@@ -2868,7 +2873,7 @@ However the version of the formula used here is the one converted to total pH sc
 pH scale (total, converted to free here) , and 
 concentration unit (mol/kg-solution squared): \citet[chapter 5, p. 12,18]{DOE1994}, pH scale also in \citet[p. 258]{Zeebe2001}.\\
 \texttt{K\_HSO4}     & \citet[chapter 5 page 13]{DOE1994}, \citet[p. 260]{Zeebe2001}, \citet{Dickson1990a} (original reference). Constant type (stoichiometric), pH scale (free) , and 
-concentration unit (mol/kg-$\rm H_2O$ converted to mol/kg-solution here): \citet[chapter 5, p. 13]{DOE1994}.\\
+concentration unit (mol/kg-$\rm H_2O$ converted to mol/kg-solution here): \citet[chapter 5, p. 13]{DOE1994}. Note that it is also possible to use the constant according to \cite{Khoo1977}, as cited in, e.g.,  \cite{Roy1993b}, \cite{Millero1995}, and \cite{Lewis1998}. In \cite{Lewis1998} it is stated that the constant resulting from this equation is in mol/kg-H$_2$O and on the free pH scale.\\
 \texttt{K\_HF}       & \citet[p. 91]{Dickson1979} (original reference), \citet[c. 5, p. 15]{DOE1994}, \citet[p. 257]{Roy1993b}, \citet[p. 1783]{Dickson1987}, \citet[p. 664]{Millero1995}, \citet[p. 260]{Zeebe2001} 
 (converted to molinty and total scale).  Constant type (stoichiometric), pH scale (free) , and 
 concentration unit (mol/kg-$\rm H_2O$ converted to mol/kg-solution here): \citet[chapter 5, p. 15, 16]{DOE1994}. In \textsf{AquaEnv}, it is also possible to use the constant according to \cite{Perez1987a}. \\
@@ -2877,7 +2882,7 @@ Constant type (stoichiometric) and  concentration unit (mol/kg-$\rm H_2O$ conver
 In \citet[chapter 5, p. 12]{DOE1994} the total scale is stated for the formula for high salinities and thus can be inferred for the formula for low salinities. 
 The scale is also indirectly stated for both formulations in the original reference \citet{Roy1993b}. Note that in \citet{Roy1993b} a function for fresh water (based on \cite{Millero1979} which in turn is on a temperature relationship from \cite{Harned1943} and \cite{Harned1941} respectively) and a function for seawater is derived. In \citet{Millero1995} it is stated that for S$<$5 the fresh water formula (based on \cite{Millero1979}) should be used and for S$>=$5 the seawater formula derived in \citet{Roy1993b}. However, both formulations do not always 
 intersect at \texttt{S}=5. The true intersection with respect to salinity \texttt{S} is a function of temperature \texttt{t}. Here, we first calculate this intersection by
-numerical root finding and then decide which formulation to use. This practise results in a continuous function with respect to \texttt{S}. (Note that there is a typesetting error in \citet{Roy1993b}: one of the numerical values for the function for $\rm K^*_{CO_2}$ is given as 310.48919, but correct is 2310.48919. However, in \citet{Millero1995} this value is stated correctly.) In \textsf{AquaEnv}, it is also possible to use the constants according to \cite{Lueker2000}.\\
+numerical root finding and then decide which formulation to use. This practise results in a continuous function with respect to \texttt{S}. (Note that there is a typesetting error in \citet{Roy1993b}: one of the numerical values for the function for $\rm K^*_{CO_2}$ is given as 310.48919, but correct is 2310.48919. However, in \citet{Millero1995} this value is stated correctly.) In \textsf{AquaEnv}, it is also possible to use the constants according to \cite{Lueker2000} and \cite{Millero2006}.\\
 \texttt{K\_BOH3}     & \citet[p. 763]{Dickson1990} (original, but mol/kg-$\rm H_2O$ version), \citet[ch. 5, p. 14]{DOE1994}, \citet[p. 262]{Zeebe2001}, \citet[p.669]{Millero1995} (mol/kg-$\rm H_2O$ version) , agrees with data in \citet{Roy1993a}.
 Constant type (stoichiometric) and  concentration unit (mol/kg-solution): \citet[chapter 5, p. 14]{DOE1994}, pH scale (total): \citet[chapter 5, p. 12]{DOE1994} and \citet[p.263]{Zeebe2001}. \\
 \texttt{K\_NH4}      & \citet{Millero1995a} (original reference), \citet[p.671]{Millero1995}. Constant type (stoichiometric) and concentration unit (mol/kg-solution): \citet[p.671]{Millero1995}, pH scale (seawater, converted to free here):  

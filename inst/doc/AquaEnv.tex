@@ -28,10 +28,7 @@
 \Plainkeywords{aquatic modelling, pH, pH scales, dissolved inorganic carbon, total alkalinity, total alkalinity curve fitting, theoretical titration, revelle factor, omega, solubility products, CO2, ocean acidification, estuaries, carbonate system, seawater, R}
 
 
-\author{Andreas F. Hofmann\\
-Centre for Estuarine and Marine Ecology\\
-Netherlands Institute of Ecology\\
-The Netherlands}
+\author{Andreas F. Hofmann}
 
 \Plainauthor{Andreas F. Hofmann}
 
@@ -56,6 +53,12 @@ as well as additionally the electrode standard potential ($\rm E_0$) and the fir
 
 \Address{
   Andreas F. Hofmann\\
+  Monterey Bay Aquarium Research Institute (MBARI)\\
+  7700 Sandholdt Road\\
+  Moss Landing, CA 95039\\
+  USA\\
+  E-mail: \email{ahofmann@mbari.org}\\ \\
+  \textit{previous address:}\\
   Centre for Estuarine and Marine Ecology (CEME)\\
   Netherlands Institute of Ecology (NIOO)\\
   4401 NT Yerseke, Netherlands
@@ -717,7 +720,7 @@ If an ambivalent situation is created because the user enters too much informati
 > ae <- aquaenv(S, t, p, SumCO2 = SumCO2, pH = pH, CO2 = CO2)
 \end{Sinput}
 \begin{Soutput}
-[1] "Error! Overdetermined system: entered pH: 8 , calculated pH: 7.99997466705669"
+[1] "Error! Overdetermined system: entered pH: 8 , calculated pH: 7.9999746670567"
 [1] "Please enter only one of: pH, TA, CO2, or fCO2."
 \end{Soutput}
 \begin{Sinput}
@@ -887,7 +890,7 @@ Data in other concentration units or pH scales can be converted using the functi
 > ae$pH
 \end{Sinput}
 \begin{Soutput}
-[1] 8.004386
+[1] 8.050993
 attr(,"pH scale")
 [1] "free"
 \end{Soutput}
@@ -1259,11 +1262,34 @@ A list of parameters is specified
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> parameters <- list(S = 25, t_min = 5, t_max = 25, k = 0.4, rOx = 3e-07, 
-+     rNitri = 2e-07, rPP = 6e-06, ksDINPP = 1e-06, ksNH4PP = 1e-06, 
-+     D = 0.1, O2_io = 0.000296, NO3_io = 3.5e-05, SumNH4_io = 8e-06, 
-+     SumCO2_io = 0.00232, TA_io = 0.002435, C_Nratio = 8, a = 30, 
-+     b = 50, modeltime = 100)
+> parameters <- list(             
++        S          = 25    , # psu       
++        t_min     = 5     , # degrees C
++        t_max     = 25    , # degrees C
++                   
++        k          = 0.4       , # 1/d	        proportionality factor for air-water exchange
++        rOx        = 0.0000003 , # mol-N/(kg*d)  maximal rate of oxic mineralisation
++        rNitri     = 0.0000002 , # mol-N/(kg*d)  maximal rate of nitrification 
++        rPP        = 0.000006  , # mol-N/(kg*d)  maximal rate of primary production
++                    
++        ksDINPP    = 0.000001  , # mol-N/kg
++        ksNH4PP    = 0.000001  , # mol-N/kg
++                    
++        D          = 0.1       , #   1/d         (dispersive) transport coefficient
++                    
++        O2_io      = 0.000296  , # mol/kg-soln 
++        NO3_io     = 0.000035  , # mol/kg-soln 
++        SumNH4_io  = 0.000008  , # mol/kg-soln 
++        SumCO2_io  = 0.002320  , # mol/kg-soln 
++        TA_io      = 0.002435  , # mol/kg-soln 
++                    
++        C_Nratio   = 8         , # mol C/mol N     C:N ratio of organic matter
++                    
++        a           = 30       , # timestep from which PP begins     
++        b           = 50       , # timestep where PP shuts off again
++                    
++        modeltime   = 100        # duration of the model
++                    )
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1274,47 +1300,59 @@ is created in each timestep, some of its elements are used to calculated kinetic
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> boxmodel <- function(timestep, currentstate, parameters) {
-+     with(as.list(c(currentstate, parameters)), {
-+         t <- c(seq(t_min, t_max, (t_max - t_min)/(modeltime/2)), 
-+             seq(t_max, t_min, -(t_max - t_min)/(modeltime/2)))[[round(timestep) + 
-+             1]]
-+         ae <- aquaenv(S = S, t = t, SumCO2 = SumCO2, SumNH4 = SumNH4, 
-+             TA = TA)
-+         ECO2 <- k * (ae$CO2_sat - ae$CO2)
-+         EO2 <- k * (ae$O2_sat - O2)
-+         TO2 <- D * (O2_io - O2)
-+         TNO3 <- D * (NO3_io - NO3)
-+         TSumNH4 <- D * (SumNH4_io - SumNH4)
-+         TTA <- D * (TA_io - TA)
-+         TSumCO2 <- D * (SumCO2_io - SumCO2)
-+         RNit <- rNitri
-+         ROx <- rOx
-+         ROxCarbon <- ROx * C_Nratio
-+         pNH4PP <- 0
-+         RPP <- 0
-+         if ((timestep > a) && (timestep < b)) {
-+             RPP <- rPP * ((SumNH4 + NO3)/(ksDINPP + (SumNH4 + 
-+                 NO3)))
-+             pNH4PP <- 1 - (ksNH4PP/(ksNH4PP + SumNH4))
+> boxmodel <- function(timestep, currentstate, parameters)
++ {
++   with (
++         as.list(c(currentstate,parameters)),
++         {
++           t <- c(seq(t_min, t_max, (t_max-t_min)/(modeltime/2)), 
++                  seq(t_max, t_min, -(t_max-t_min)/(modeltime/2)))[[round(timestep)+1]]
++           
++           ae <- aquaenv(S=S, t=t, SumCO2=SumCO2, SumNH4=SumNH4, TA=TA)
++                                     
++           ECO2    <- k * (ae$CO2_sat - ae$CO2)            
++           EO2     <- k * (ae$O2_sat  - O2)             
++          
++           TO2     <- D*(O2_io     - O2)
++           TNO3    <- D*(NO3_io    - NO3)
++           TSumNH4 <- D*(SumNH4_io - SumNH4)
++           TTA     <- D*(TA_io     - TA)
++           TSumCO2 <- D*(SumCO2_io - SumCO2)
++           
++           RNit      <- rNitri 
++ 
++           ROx       <- rOx 
++           ROxCarbon <- ROx * C_Nratio
++ 
++           pNH4PP <- 0
++           RPP <- 0
++           
++           if ((timestep > a) && (timestep < b))
++             {
++               RPP    <- rPP * ((SumNH4+NO3)/(ksDINPP + (SumNH4+NO3)))
++               pNH4PP <- 1 - (ksNH4PP/(ksNH4PP + SumNH4))
++             }
++           else
++             {
++               RPP <- 0
++             }
++           RPPCarbon <- RPP * C_Nratio
++           
++           dO2     <- TO2     + EO2 - ROxCarbon - 2*RNit  + (2-2*pNH4PP)*RPP + RPPCarbon
++           dNO3    <- TNO3    + RNit -(1-pNH4PP)*RPP
++ 
++           dSumCO2 <- TSumCO2 + ECO2 + ROxCarbon - RPPCarbon
++           dSumNH4 <- TSumNH4 + ROx  - RNit - pNH4PP*RPP
++                     
++           dTA     <- TTA     + ROx - 2*RNit -(2*pNH4PP-1)*RPP 
++ 
++           ratesofchanges <- c(dO2, dNO3, dSumNH4, dSumCO2, dTA)
++           transport      <- c(TO2=TO2, TNO3=TNO3, TSumNH4=TSumNH4, TTA=TTA, TSumCO2=TSumCO2)
++           airseaexchange <- c(ECO2=ECO2, EO2=EO2)
++           
++           return(list(ratesofchanges, list(transport, airseaexchange, ae)))
 +         }
-+         else {
-+             RPP <- 0
-+         }
-+         RPPCarbon <- RPP * C_Nratio
-+         dO2 <- TO2 + EO2 - ROxCarbon - 2 * RNit + (2 - 2 * pNH4PP) * 
-+             RPP + RPPCarbon
-+         dNO3 <- TNO3 + RNit - (1 - pNH4PP) * RPP
-+         dSumCO2 <- TSumCO2 + ECO2 + ROxCarbon - RPPCarbon
-+         dSumNH4 <- TSumNH4 + ROx - RNit - pNH4PP * RPP
-+         dTA <- TTA + ROx - 2 * RNit - (2 * pNH4PP - 1) * RPP
-+         ratesofchanges <- c(dO2, dNO3, dSumNH4, dSumCO2, dTA)
-+         transport <- c(TO2 = TO2, TNO3 = TNO3, TSumNH4 = TSumNH4, 
-+             TTA = TTA, TSumCO2 = TSumCO2)
-+         airseaexchange <- c(ECO2 = ECO2, EO2 = EO2)
-+         return(list(ratesofchanges, list(transport, airseaexchange, 
-+             ae)))
-+     })
++         )
 + }
 \end{Sinput}
 \end{Schunk}
@@ -1325,13 +1363,12 @@ The model is solved.
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> with(as.list(parameters), {
-+     initialstate <<- c(O2 = O2_io, NO3 = NO3_io, SumNH4 = SumNH4_io, 
-+         SumCO2 = SumCO2_io, TA = TA_io)
-+     times <<- c(0:modeltime)
-+     output <<- as.data.frame(vode(initialstate, times, boxmodel, 
-+         parameters, hmax = 1))[-1, ]
-+ })
+> with (as.list(parameters),
++       {
++         initialstate <<- c(O2=O2_io, NO3=NO3_io, SumNH4=SumNH4_io, SumCO2=SumCO2_io, TA=TA_io)
++         times        <<- c(0:modeltime)
++         output       <<- as.data.frame(vode(initialstate,times,boxmodel,parameters, hmax=1))[-1,]        
++       })
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1368,10 +1405,32 @@ Again, a list of parameters is defined
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> parameters <- list(S = 25, t = 15, k = 0.4, rOx = 3e-07, rNitri = 2e-07, 
-+     rPP = 6e-07, ksSumNH4 = 1e-06, D = 0.1, O2_io = 0.000296, 
-+     NO3_io = 3.5e-05, SumNH4_io = 8e-06, SumCO2_io = 0.00232, 
-+     TA_io = 0.002435, C_Nratio = 8, a = 30, b = 50, modeltime = 100)
+> parameters <- list(             
++      S          = 25    , # psu       
++      t          = 15    , # degrees C
++                    
++      k          = 0.4       , # 1/d	    proportionality factor for air-water exchange
++      rOx        = 0.0000003 , # mol-N/(kg*d)  maximal rate of oxic mineralisation
++      rNitri     = 0.0000002 , # mol-N/(kg*d)  maximal rate of nitrification 
++      rPP        = 0.0000006 , # mol-N/(kg*d)  maximal rate of primary production
++                    
++      ksSumNH4   = 0.000001  , # mol-N/kg
++                   
++      D          = 0.1       , #   1/d            (dispersive) transport coefficient
++                    
++      O2_io      = 0.000296  , # mol/kg-soln 
++      NO3_io     = 0.000035  , # mol/kg-soln 
++      SumNH4_io  = 0.000008  , # mol/kg-soln 
++      SumCO2_io  = 0.002320  , # mol/kg-soln 
++      TA_io      = 0.002435  , # mol/kg-soln 
++                    
++      C_Nratio   = 8       , # mol C/mol N     C:N ratio of organic matter
++                   
++      a          = 30       , # timestep from which PP begins     
++      b          = 50       , # timestep where PP shuts off again
++                    
++      modeltime  = 100        # duration of the model
++                    )
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1381,47 +1440,64 @@ And a model function is defined. Again, an object of class \textit{aquaenv} is c
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> boxmodel <- function(timestep, currentstate, parameters) {
-+     with(as.list(c(currentstate, parameters)), {
-+         ae <- aquaenv(S = S, t = t, SumCO2 = SumCO2, SumNH4 = SumNH4, 
-+             TA = TA, dsa = TRUE)
-+         ECO2 <- k * (ae$CO2_sat - ae$CO2)
-+         EO2 <- k * (ae$O2_sat - O2)
-+         RNit <- rNitri
-+         ROx <- rOx
-+         if ((timestep > a) && (timestep < b)) {
-+             RPP <- rPP * (SumNH4/(ksSumNH4 + SumNH4))
+> boxmodel <- function(timestep, currentstate, parameters)
++ {
++   with (
++         as.list(c(currentstate,parameters)),
++         {  
++           # the "classical" implicit pH calculation method is applied in aquaenv
++           ae <- aquaenv(S=S, t=t, SumCO2=SumCO2, SumNH4=SumNH4, TA=TA, dsa=TRUE)
++                                     
++           ECO2    <- k * (ae$CO2_sat - ae$CO2)            
++           EO2     <- k * (ae$O2_sat  - O2)                    
++         
++           RNit      <- rNitri 
++           ROx       <- rOx 
++         
++           if ((timestep > a) && (timestep < b))
++             {
++               RPP <- rPP * (SumNH4/(ksSumNH4 + SumNH4))
++             }
++           else
++             {
++               RPP <- 0
++             }
++           
++           dO2     <- EO2 - C_Nratio*ROx - 2*RNit + C_Nratio*RPP
++           dNO3    <- RNit
++           
++           dSumCO2 <- ECO2 + C_Nratio*ROx - C_Nratio*RPP
++           dSumNH4 <- ROx  - RNit - RPP
++ 
++           dTA     <- ROx - 2*RNit - RPP
++           
++           # The DSA pH
++           dH    <- (dTA - (dSumCO2*ae$dTAdSumCO2 + dSumNH4*ae$dTAdSumNH4))/ae$dTAdH
++           DSApH <- -log10(H)
++ 
++           # The DSA pH using pH dependent fractional stoichiometry (= using partitioning coefficients)
++           rhoHECO2 <- ae$c2 + 2*ae$c3
++           rhoHRNit <- 1 + ae$n1
++           rhoHROx  <- C_Nratio * (ae$c2 + 2*ae$c3) - ae$n1
++           rhoHRPP  <- -(C_Nratio * (ae$c2 + 2*ae$c3)) + ae$n1
++           
++           dH_ECO2  <- rhoHECO2*ECO2/(-ae$dTAdH)
++           dH_RNit  <- rhoHRNit*RNit/(-ae$dTAdH)
++           dH_ROx   <- rhoHROx*ROx  /(-ae$dTAdH)
++           dH_RPP   <- rhoHRPP*RPP  /(-ae$dTAdH)
++ 
++           dH_stoich   <- dH_ECO2 + dH_RNit + dH_ROx + dH_RPP
++           DSAstoichpH <- -log10(H_stoich)       
++ 
++           ratesofchanges <- c(dO2, dNO3, dSumNH4, dSumCO2, dTA, dH, dH_stoich)
++           processrates   <- c(ECO2=ECO2, EO2=EO2, RNit=RNit, ROx=ROx, RPP=RPP)
++           DSA            <- c(DSApH=DSApH, rhoHECO2=rhoHECO2, rhoHRNit=rhoHRNit, rhoHROx=rhoHROx,
++                               rhoHRPP=rhoHRPP, dH_ECO2=dH_ECO2, dH_RNit=dH_RNit, dH_ROx=dH_ROx, 
++                               dH_RPP=dH_RPP, DSAstoichpH=DSAstoichpH)
++           
++           return(list(ratesofchanges, list(processrates, DSA, ae)))
 +         }
-+         else {
-+             RPP <- 0
-+         }
-+         dO2 <- EO2 - C_Nratio * ROx - 2 * RNit + C_Nratio * RPP
-+         dNO3 <- RNit
-+         dSumCO2 <- ECO2 + C_Nratio * ROx - C_Nratio * RPP
-+         dSumNH4 <- ROx - RNit - RPP
-+         dTA <- ROx - 2 * RNit - RPP
-+         dH <- (dTA - (dSumCO2 * ae$dTAdSumCO2 + dSumNH4 * ae$dTAdSumNH4))/ae$dTAdH
-+         DSApH <- -log10(H)
-+         rhoHECO2 <- ae$c2 + 2 * ae$c3
-+         rhoHRNit <- 1 + ae$n1
-+         rhoHROx <- C_Nratio * (ae$c2 + 2 * ae$c3) - ae$n1
-+         rhoHRPP <- -(C_Nratio * (ae$c2 + 2 * ae$c3)) + ae$n1
-+         dH_ECO2 <- rhoHECO2 * ECO2/(-ae$dTAdH)
-+         dH_RNit <- rhoHRNit * RNit/(-ae$dTAdH)
-+         dH_ROx <- rhoHROx * ROx/(-ae$dTAdH)
-+         dH_RPP <- rhoHRPP * RPP/(-ae$dTAdH)
-+         dH_stoich <- dH_ECO2 + dH_RNit + dH_ROx + dH_RPP
-+         DSAstoichpH <- -log10(H_stoich)
-+         ratesofchanges <- c(dO2, dNO3, dSumNH4, dSumCO2, dTA, 
-+             dH, dH_stoich)
-+         processrates <- c(ECO2 = ECO2, EO2 = EO2, RNit = RNit, 
-+             ROx = ROx, RPP = RPP)
-+         DSA <- c(DSApH = DSApH, rhoHECO2 = rhoHECO2, rhoHRNit = rhoHRNit, 
-+             rhoHROx = rhoHROx, rhoHRPP = rhoHRPP, dH_ECO2 = dH_ECO2, 
-+             dH_RNit = dH_RNit, dH_ROx = dH_ROx, dH_RPP = dH_RPP, 
-+             DSAstoichpH = DSAstoichpH)
-+         return(list(ratesofchanges, list(processrates, DSA, ae)))
-+     })
++         )
 + }
 \end{Sinput}
 \end{Schunk}
@@ -1431,15 +1507,15 @@ The model is solved
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> with(as.list(parameters), {
-+     H_init <<- 10^(-(aquaenv(S = S, t = t, SumCO2 = SumCO2_io, 
-+         SumNH4 = SumNH4_io, TA = TA_io, speciation = FALSE)$pH))
-+     initialstate <<- c(O2 = O2_io, NO3 = NO3_io, SumNH4 = SumNH4_io, 
-+         SumCO2 = SumCO2_io, TA = TA_io, H = H_init, H_stoich = H_init)
-+     times <<- c(0:modeltime)
-+     output <<- as.data.frame(vode(initialstate, times, boxmodel, 
-+         parameters, hmax = 1))[-1, ]
-+ })
+> with (as.list(parameters),
++       {
++         H_init       <<- 10^(-(aquaenv(S=S, t=t, SumCO2=SumCO2_io, SumNH4=SumNH4_io, TA=TA_io, 
++                                        speciation=FALSE)$pH))
++         initialstate <<- c(O2=O2_io, NO3=NO3_io, SumNH4=SumNH4_io, SumCO2=SumCO2_io, TA=TA_io, H=H_init, 
++                            H_stoich=H_init)
++         times        <<- c(0:modeltime)
++         output       <<- as.data.frame(vode(initialstate, times, boxmodel, parameters, hmax=1))[-1,]        
++       })
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1500,8 +1576,20 @@ A list of parameters
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> parameters <- list(t = 15, S = 35, SumCO2_t0 = 0.002, TA_t0 = 0.0022, 
-+     kc = 0.5, kp = 1e-06, n = 2, modeltime = 20, outputsteps = 100)
+> parameters <- list(             
++     t           = 15        , # degrees C
++     S           = 35        , # psu       
++ 
++     SumCO2_t0   = 0.002     , # mol/kg-soln  (comparable to Wang2005)
++     TA_t0       = 0.0022    , # mol/kg-soln  (comparable to Millero1998)
++ 
++     kc          = 0.5       , # 1/d	         proportionality factor for air-water exchange
++     kp          = 0.000001  , # mol/(kg-soln*d)	 max rate of calcium carbonate precipitation
++     n           = 2.0       , # -                 exponent for kinetic rate law of precipitation
++                                       
++     modeltime   = 20        , # d              duration of the model
++     outputsteps = 100         #                number of outputsteps
++                    )
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1510,18 +1598,27 @@ The model function
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> boxmodel <- function(timestep, currentstate, parameters) {
-+     with(as.list(c(currentstate, parameters)), {
-+         ae <- aquaenv(S = S, t = t, SumCO2 = SumCO2, TA = TA, 
-+             SumSiOH4 = 0, SumBOH3 = 0, SumH2SO4 = 0, SumHF = 0)
-+         Rc <- kc * ((ae$CO2_sat) - (ae$CO2))
-+         Rp <- kp * (1 - ae$omega_calcite)^n
-+         dSumCO2 <- Rc - Rp
-+         dTA <- -2 * Rp
-+         ratesofchanges <- c(dSumCO2, dTA)
-+         processrates <- c(Rc = Rc, Rp = Rp)
-+         return(list(ratesofchanges, list(processrates, ae)))
-+     })
+> boxmodel <- function(timestep, currentstate, parameters)
++ {
++   with (
++         as.list(c(currentstate,parameters)),
++         {        
++           ae    <- aquaenv(S=S, t=t, SumCO2=SumCO2, TA=TA, SumSiOH4=0, 
++                            SumBOH3=0, SumH2SO4=0, SumHF=0)      
++           
++           Rc    <- kc * ((ae$CO2_sat) - (ae$CO2)) 
++           Rp    <- kp * (1-ae$omega_calcite)^n               
++ 
++           dSumCO2 <- Rc - Rp
++           dTA     <- -2*Rp
++           
++           ratesofchanges <- c(dSumCO2, dTA)
++           
++           processrates   <- c(Rc=Rc, Rp=Rp)
++           
++           return(list(ratesofchanges, list(processrates, ae)))
++         }
++         )
 + }
 \end{Sinput}
 \end{Schunk}
@@ -1532,12 +1629,12 @@ Solving the model
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> with(as.list(parameters), {
-+     initialstate <<- c(SumCO2 = SumCO2_t0, TA = TA_t0)
-+     times <<- seq(0, modeltime, (modeltime/outputsteps))
-+     output <<- as.data.frame(vode(initialstate, times, boxmodel, 
-+         parameters, hmax = 1))
-+ })
+> with (as.list(parameters),
++       {
++         initialstate <<- c(SumCO2=SumCO2_t0, TA=TA_t0)
++         times        <<- seq(0,modeltime,(modeltime/outputsteps))       
++         output       <<- as.data.frame(vode(initialstate,times,boxmodel,parameters, hmax=1))
++       })
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1564,8 +1661,20 @@ A list of parameters
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> parameters <- list(S = 35, t = 15, SumCO2_t0 = 0.002, TA_t0 = 0.0022, 
-+     kc = 0.5, kp = 1e-06, n = 2, modeltime = 20, outputsteps = 100)
+> parameters <- list(             
++     S           = 35        , # psu       
++     t           = 15        , # degrees C
++ 
++     SumCO2_t0   = 0.002     , # mol/kg-soln  (comparable to Wang2005)
++     TA_t0       = 0.0022    , # mol/kg-soln  (comparable to Millero1998)
++ 
++     kc          = 0.5       , # 1/d	         proportionality factor for air-water exchange
++     kp          = 0.000001  , # mol/(kg-soln*d)	 max rate of calcium carbonate precipitation
++     n           = 2.0       , # -                 exponent for kinetic rate law of precipitation
++                                       
++     modeltime   = 20        , # d              duration of the model
++     outputsteps = 100         #                number of outputsteps
++                    )
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1574,23 +1683,31 @@ The model function
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> boxmodel <- function(timestep, currentstate, parameters) {
-+     with(as.list(c(currentstate, parameters)), {
-+         ae <- aquaenv(S = S, t = t, SumCO2 = SumCO2, pH = -log10(H), 
-+             SumSiOH4 = 0, SumBOH3 = 0, SumH2SO4 = 0, SumHF = 0, 
-+             dsa = TRUE)
-+         Rc <- kc * ((ae$CO2_sat) - (ae$CO2))
-+         Rp <- kp * (1 - ae$omega_calcite)^n
-+         dSumCO2 <- Rc - Rp
-+         dHRc <- (-(ae$dTAdSumCO2 * Rc))/ae$dTAdH
-+         dHRp <- (-2 * Rp - (ae$dTAdSumCO2 * (-Rp)))/ae$dTAdH
-+         dH <- dHRc + dHRp
-+         ratesofchanges <- c(dSumCO2, dH)
-+         processrates <- c(Rc = Rc, Rp = Rp)
-+         outputvars <- c(dHRc = dHRc, dHRp = dHRp)
-+         return(list(ratesofchanges, list(processrates, outputvars, 
-+             ae)))
-+     })
+> boxmodel <- function(timestep, currentstate, parameters)
++ {
++   with (
++         as.list(c(currentstate,parameters)),
++         {        
++           ae    <- aquaenv(S=S, t=t, SumCO2=SumCO2, pH=-log10(H), SumSiOH4=0, 
++                            SumBOH3=0, SumH2SO4=0, SumHF=0, dsa=TRUE)
++                    
++           Rc    <- kc * ((ae$CO2_sat) - (ae$CO2)) 
++           Rp    <- kp * (1-ae$omega_calcite)^n               
++ 
++           dSumCO2 <- Rc - Rp
++ 
++           dHRc    <- (      -(ae$dTAdSumCO2*Rc   ))/ae$dTAdH
++           dHRp    <- (-2*Rp -(ae$dTAdSumCO2*(-Rp)))/ae$dTAdH
++           dH      <- dHRc + dHRp
++           
++           ratesofchanges <- c(dSumCO2, dH)
++           
++           processrates   <- c(Rc=Rc, Rp=Rp)
++           outputvars     <- c(dHRc=dHRc, dHRp=dHRp)
++           
++           return(list(ratesofchanges, list(processrates, outputvars, ae)))
++         }
++         )
 + }
 \end{Sinput}
 \end{Schunk}
@@ -1600,15 +1717,15 @@ Solving the model
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> with(as.list(parameters), {
-+     aetmp <- aquaenv(S = S, t = t, SumCO2 = SumCO2_t0, TA = TA_t0, 
-+         SumSiOH4 = 0, SumBOH3 = 0, SumH2SO4 = 0, SumHF = 0)
-+     H_t0 <- 10^(-aetmp$pH)
-+     initialstate <<- c(SumCO2 = SumCO2_t0, H = H_t0)
-+     times <<- seq(0, modeltime, (modeltime/outputsteps))
-+     output <<- as.data.frame(vode(initialstate, times, boxmodel, 
-+         parameters, hmax = 1))
-+ })
+> with (as.list(parameters),
++       {
++         aetmp <- aquaenv(S=S, t=t, SumCO2=SumCO2_t0, TA=TA_t0, SumSiOH4=0, SumBOH3=0, SumH2SO4=0, SumHF=0)
++         H_t0  <- 10^(-aetmp$pH)
++         
++         initialstate <<- c(SumCO2=SumCO2_t0, H=H_t0)
++         times        <<- seq(0,modeltime,(modeltime/outputsteps))       
++         output       <<- as.data.frame(vode(initialstate,times,boxmodel,parameters, hmax=1))
++       })
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1646,8 +1763,20 @@ A list of parameters
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> parameters <- list(S = 35, t = 15, SumCO2_t0 = 0.002, TA_t0 = 0.0022, 
-+     kc = 0.5, kp = 1e-06, n = 2, modeltime = 20, outputsteps = 100)
+> parameters <- list(             
++      S           = 35        , # psu       
++      t           = 15        , # degrees C
++ 
++      SumCO2_t0   = 0.002     , # mol/kg-soln  (comparable to Wang2005)
++      TA_t0       = 0.0022    , # mol/kg-soln  (comparable to Millero1998)
++ 
++      kc          = 0.5       , # 1/d	         proportionality factor for air-water exchange
++      kp          = 0.000001  , # mol/(kg-soln*d)	 max rate of calcium carbonate precipitation
++      n           = 2.0       , # -                 exponent for kinetic rate law of precipitation
++                                       
++      modeltime   = 20        , # d              duration of the model
++      outputsteps = 100         #                number of outputsteps
++                    )
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -1656,26 +1785,34 @@ The model function
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> boxmodel <- function(timestep, currentstate, parameters) {
-+     with(as.list(c(currentstate, parameters)), {
-+         ae <- aquaenv(S = S, t = t, SumCO2 = SumCO2, pH = -log10(H), 
-+             SumSiOH4 = 0, SumBOH3 = 0, SumH2SO4 = 0, SumHF = 0, 
-+             dsa = TRUE)
-+         Rc <- kc * ((ae$CO2_sat) - (ae$CO2))
-+         Rp <- kp * (1 - ae$omega_calcite)^n
-+         dSumCO2 <- Rc - Rp
-+         rhoc <- ae$c2 + 2 * ae$c3
-+         rhop <- 2 * ae$c1 + ae$c2
-+         dHRc <- rhoc * Rc/(-ae$dTAdH)
-+         dHRp <- rhop * Rp/(-ae$dTAdH)
-+         dH <- dHRc + dHRp
-+         ratesofchanges <- c(dSumCO2, dH)
-+         processrates <- c(Rc = Rc, Rp = Rp)
-+         outputvars <- c(dHRc = dHRc, dHRp = dHRp, rhoc = rhoc, 
-+             rhop = rhop)
-+         return(list(ratesofchanges, list(processrates, outputvars, 
-+             ae)))
-+     })
+> boxmodel <- function(timestep, currentstate, parameters)
++ {
++   with (
++         as.list(c(currentstate,parameters)),
++         {        
++           ae    <- aquaenv(S=S, t=t, SumCO2=SumCO2, pH=-log10(H), SumSiOH4=0, 
++                            SumBOH3=0, SumH2SO4=0, SumHF=0, dsa=TRUE)        
++          
++           Rc    <- kc * ((ae$CO2_sat) - (ae$CO2)) 
++           Rp    <- kp * (1-ae$omega_calcite)^n               
++ 
++           dSumCO2 <- Rc - Rp
++ 
++           rhoc    <- ae$c2 + 2*ae$c3
++           rhop    <- 2*ae$c1 + ae$c2
++           
++           dHRc    <- rhoc*Rc/(-ae$dTAdH)
++           dHRp    <- rhop*Rp/(-ae$dTAdH)
++           dH      <- dHRc + dHRp
++           
++           ratesofchanges <- c(dSumCO2, dH)
++           
++           processrates   <- c(Rc=Rc, Rp=Rp)
++           outputvars     <- c(dHRc=dHRc, dHRp=dHRp, rhoc=rhoc, rhop=rhop)
++           
++           return(list(ratesofchanges, list(processrates, outputvars, ae)))
++         }
++         )
 + }
 \end{Sinput}
 \end{Schunk}
@@ -1685,15 +1822,16 @@ Solving the model
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> with(as.list(parameters), {
-+     aetmp <- aquaenv(S = S, t = t, SumCO2 = SumCO2_t0, TA = TA_t0, 
-+         SumSiOH4 = 0, SumBOH3 = 0, SumH2SO4 = 0, SumHF = 0)
-+     H_t0 <- 10^(-aetmp$pH)
-+     initialstate <<- c(SumCO2 = SumCO2_t0, H = H_t0)
-+     times <<- seq(0, modeltime, (modeltime/outputsteps))
-+     output <<- as.data.frame(vode(initialstate, times, boxmodel, 
-+         parameters, hmax = 1))
-+ })
+> with (as.list(parameters),
++       {
++         aetmp <- aquaenv(S=S, t=t, SumCO2=SumCO2_t0, TA=TA_t0, SumSiOH4=0, 
++                          SumBOH3=0, SumH2SO4=0, SumHF=0)
++         H_t0  <- 10^(-aetmp$pH)
++         
++         initialstate <<- c(SumCO2=SumCO2_t0, H=H_t0)
++         times        <<- seq(0,modeltime,(modeltime/outputsteps))       
++         output       <<- as.data.frame(vode(initialstate,times,boxmodel,parameters, hmax=1))
++       })
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -2128,7 +2266,7 @@ attr(,"unit")
 [1] "mol/kg-soln"
 
 $sumofsquares
-[1] 9.46633e-30
+[1] 0
 \end{Soutput}
 \end{Schunk}
 Thus, we see that \texttt{TAfit} calculates the correct SumCO2 and TA values.\\
@@ -2140,15 +2278,15 @@ Trying the \cite{Lueker2000} (K\_CO2 and K\_HCO3) and \cite{Perez1987} (K\_HF) v
 
 \begin{Schunk}
 \begin{Sinput}
-> initial_ae_ <- aquaenv(S = 35, t = 15, SumCO2 = 0.002, TA = 0.0022, 
-+     k1k2 = "lueker", khf = "perez")
-> ae_ <- titration(initial_ae_, mass_sample = 0.01, mass_titrant = 0.003, 
-+     conc_titrant = 0.01, S_titrant = 0.5, steps = 20, k1k2 = "lueker", 
-+     khf = "perez")
-> titcurve_ <- cbind(ae_$delta_mass_titrant, ae_$pH)
-> fit1_ <- TAfit(initial_ae_, titcurve_, conc_titrant = 0.01, mass_sample = 0.01, 
-+     S_titrant = 0.5, k1k2 = "lueker", khf = "perez", verbose = TRUE)
-> fit1_
+> initial_ae_ <- aquaenv(S=35, t=15, SumCO2=0.002, TA=0.0022,
++                        k1k2="lueker", khf="perez")
+> ae_         <- titration(initial_ae_, mass_sample=0.01, mass_titrant=0.003, 
++                          conc_titrant=0.01,
++                          S_titrant=0.5, steps=20, k1k2="lueker", khf="perez")
+> titcurve_   <- cbind(ae_$delta_mass_titrant, ae_$pH)
+> fit1_       <- TAfit(initial_ae_, titcurve_, conc_titrant=0.01, mass_sample=0.01,
++                      S_titrant=0.5, k1k2="lueker", khf="perez", verbose=TRUE)
+> fit1_	      
 \end{Sinput}
 \end{Schunk}
 
@@ -2255,7 +2393,7 @@ attr(,"pH scale")
 [1] "free"
 
 $sumofsquares
-[1] 1.246400e-28
+[1] 7.928052e-29
 \end{Soutput}
 \end{Schunk}
 
@@ -2297,17 +2435,17 @@ Finally, some "noise" is added to the generated data
 \end{Sinput}
 \begin{Soutput}
 $TA
-[1] 0.002186465
+[1] 0.002251827
 attr(,"unit")
 [1] "mol/kg-soln"
 
 $SumCO2
-[1] 0.001987339
+[1] 0.002023877
 attr(,"unit")
 [1] "mol/kg-soln"
 
 $sumofsquares
-[1] 0.03852847
+[1] 0.0798737
 \end{Soutput}
 \end{Schunk}
 
@@ -2552,20 +2690,30 @@ The function is defined as
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> simpletitration <- function(aquaenv, volume, amount, steps, type) {
-+     directionTAchange <- switch(type, HCl = -1, NaOH = +1)
-+     TAconcchangeperstep <- convert(((amount/steps)/volume), "conc", 
-+         "molar2molin", aquaenv$t, aquaenv$S)
+> simpletitration <- function(aquaenv,                # an object of class aquaenv: minimal definition, 
++                                                     # contains all information about the system: 
++                                                     # T, S, d, total concentrations of nutrients etc 
++                             volume,                 # the volume of the (theoretical) titration vessel in l 
++                             amount,                 # the amount of titrant added in mol
++                             steps,                  # the amount of steps the amount of titrant is added in 
++                             type)                   # the type of titrant: either "HCl" or "NaOH"
++   {
++     directionTAchange   <- switch(type, HCl  = -1, NaOH = +1)
++     TAconcchangeperstep <- convert(((amount/steps)/volume), "conc", "molar2molin", aquaenv$t, aquaenv$S)
++ 
 +     aquaenvtemp <- aquaenv
-+     for (i in 1:steps) {
-+         TA <- aquaenvtemp$TA + (directionTAchange * TAconcchangeperstep)
-+         aquaenvtemp <- aquaenv(ae = aquaenvtemp, TA = TA)
-+         aquaenv <- merge(aquaenv, aquaenvtemp)
-+     }
-+     aquaenv[["DeltaCTitrant"]] <- convert((amount/volume)/steps * 
-+         (1:(steps + 1)), "conc", "molar2molin", aquaenv$t, aquaenv$S)
-+     return(aquaenv)
-+ }
++     
++     for (i in 1:steps)
++       {
++         TA          <- aquaenvtemp$TA + (directionTAchange * TAconcchangeperstep)
++         aquaenvtemp <- aquaenv(ae=aquaenvtemp, TA=TA)
++         aquaenv     <- merge(aquaenv, aquaenvtemp)
++       }
++ 
++     aquaenv[["DeltaCTitrant"]] <- convert((amount/volume)/steps*(1:(steps+1)), 
++                                           "conc", "molar2molin", aquaenv$t, aquaenv$S)
++     return(aquaenv)  # object of class aquaenv which contains a titration simulation
++   }
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -2601,25 +2749,39 @@ defined as
 \begin{scriptsize}
 \begin{Schunk}
 \begin{Sinput}
-> simpleTAfit <- function(ae, pHmeasurements, volume, amount, TAguess = 0.0025, 
-+     type = "HCl") {
-+     ae$Na <- NULL
-+     residuals <- function(state) {
-+         ae$SumCO2 <- state[[1]]
-+         pHcalc <- simpletitration(aquaenv(ae = ae, TA = state[[2]]), 
-+             volume = volume, amount = amount, steps = (length(pHmeasurements) - 
-+                 1), type = type)$pH
-+         residuals <- pHmeasurements - pHcalc
+> simpleTAfit <- function(ae,                   # an object of class aquaenv: minimal definition, 
++                                               # contains all information about the system: 
++                                               # T, S, d, total concentrations of nutrients etc 
++                         pHmeasurements,       # a table containing the titration curve: 
++                                               # basically a series of pH values (pH on free proton scale)
++                         volume,               # the volume of the titration vessel
++                         amount,               # the total amount of the titrant added
++                         TAguess=0.0025,       # a first guess for [TA] and [SumCO2] to be used as 
++                                               # initial values for the optimization procedure
++                         type="HCl")           # the type of titrant: either "HCl" or "NaOH"
++   {
++     ae$Na <- NULL   # make sure ae gets cloned as "skeleton": cloneaquaenv determines "skeleton" 
++                     # TRUE or FALSE from the presence of a value for Na
++     residuals <- function(state)
++       {
++         ae$SumCO2  <- state[[1]]
++         pHcalc     <- simpletitration(aquaenv(ae=ae, TA=state[[2]]), volume=volume, 
++                                       amount=amount, steps=(length(pHmeasurements)-1), type=type)$pH
++         residuals <- pHmeasurements-pHcalc
++        
 +         return(residuals)
-+     }
++       }
++ 
 +     require(minpack.lm)
-+     out <- nls.lm(fn = residuals, par = c(TAguess, TAguess))
-+     result <- list(out$par[[2]], out$par[[1]], out$deviance)
++     out <- nls.lm(fn=residuals, par=c(TAguess, TAguess))  #guess for TA is also used as guess for SumCO2
++   
++     result                    <- list(out$par[[2]], out$par[[1]], out$deviance)
 +     attr(result[[1]], "unit") <- "mol/kg-soln"
 +     attr(result[[2]], "unit") <- "mol/kg-soln"
-+     names(result) <- c("TA", "SumCO2", "sumofsquares")
-+     return(result)
-+ }
++     names(result)             <- c("TA", "SumCO2", "sumofsquares")
++     return(result)  # a list of three values 
++                     # ([TA] in mol/kg-solution, [SumCO2] in mol/kg-solution, sum of the squared residuals)
++   }
 \end{Sinput}
 \end{Schunk}
 \end{scriptsize}
@@ -2645,7 +2807,7 @@ attr(,"unit")
 [1] "mol/kg-soln"
 
 $sumofsquares
-[1] 1.587195e-20
+[1] 1.587199e-20
 \end{Soutput}
 \end{Schunk}
 

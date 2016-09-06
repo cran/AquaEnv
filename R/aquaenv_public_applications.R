@@ -14,7 +14,7 @@ titration <- function(aquaenv,                # an object of type aquaenv: minim
                       k_boh3=NULL,            # a fixed K_BOH3 can be specified
                       k_hso4=NULL,            # a fixed K_HSO4 can be specified
                       k_hf=NULL,              # a fixed K_HF can be specified
-                      k1k2="roy",             # either "roy" (default, Roy1993a) or "lueker" (Lueker2000, calculated with seacarb) for K\_CO2 and K\_HCO3
+                      k1k2="lueker",          # either "lueker" (default, Lueker2000) or "roy" (Roy1993a) or for K\_CO2 and K\_HCO3
                       khf="dickson")          # either "dickson" (default, Dickson1979a) or "perez" (Perez1987a, calculated with seacarb) for K\_HF}
   {
     concstep <- function(conc, oldmass, newmass)

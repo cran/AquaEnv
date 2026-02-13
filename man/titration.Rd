@@ -21,14 +21,14 @@
     water based titrant (i.e. SumBOH4, SumHSO4, and SumHF = 0). It is
     not possible to give values for SumBOH4, SumHSO4, and SumHF of the
     titrant.}
-  \item{k_w}{a fixed K\_W can be specified}
-  \item{k_co2}{a fixed K\_CO2 can be specified; used for TA fitting: give a K\_CO2 and NOT calculate it from T and S: i.e. K\_CO2 can be fitted in the routine as well}
-  \item{k_hco3}{a fixed K\_HCO3 can be specified}
-  \item{k_boh3}{a fixed K\_BOH3 can be specified}
-  \item{k_hso4}{a fixed K\_HSO4 can be specified}
-  \item{k_hf}{a fixed K\_HF can be specified}
-  \item{k1k2}{either "lueker" (default, Lueker2000) or "roy" (Roy1993a) for K\_CO2 and K\_HCO3.}
-  \item{khf}{either "dickson" (default, Dickson1979a) or "perez" (Perez1987a) for K\_HF}
+  \item{k_w}{a fixed K_W can be specified}
+  \item{k_co2}{a fixed K_CO2 can be specified; used for TA fitting: give a K_CO2 and NOT calculate it from T and S: i.e. K_CO2 can be fitted in the routine as well}
+  \item{k_hco3}{a fixed K_HCO3 can be specified}
+  \item{k_boh3}{a fixed K_BOH3 can be specified}
+  \item{k_hso4}{a fixed K_HSO4 can be specified}
+  \item{k_hf}{a fixed K_HF can be specified}
+  \item{k1k2}{either "lueker" (default, Lueker2000) or "roy" (Roy1993a) for K_CO2 and K_HCO3.}
+  \item{khf}{either "dickson" (default, Dickson1979a) or "perez" (Perez1987a) for K_HF}
 }
 \value{
   object of class aquaenv which contains a titration simulation

@@ -1,6 +1,6 @@
 \name{gauge_p}
 \alias{gauge_p}
-\title{gauge\_p}
+\title{gauge_p}
 \description{PUBLIC function: calculates the gauge pressure (total pressure minus atmospheric pressure) from the depth (in m) and the latitude (in degrees: -90 to 90) and the atmospheric pressure (in bar)}
 \usage{gauge_p(d, lat=0, Pa=1.01325)}
 \arguments{

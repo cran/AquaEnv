@@ -173,7 +173,32 @@ K_W <- function(S, t, p=0, SumH2SO4=NULL, SumHF=NULL, khf="dickson", khso4="dick
 ######################################################################################
 
 
+K_HNO2 <- function(...) { 
+  K_HNO2    <- PhysChemConst$K_HNO2    
+  attr(K_HNO2, "unit")     <- "molkg-soln"
+  attr(K_HNO2, "pH scale") <- "free" 
+  return(K_HNO2)
+}
 
+K_HNO3 <- function(...) { 
+
+  K_HNO3    <- PhysChemConst$K_HNO3    
+  attr(K_HNO3, "unit")     <- "molkg-soln"
+  attr(K_HNO3, "pH scale") <- "free" 
+  return(K_HNO3)
+}
+K_H2SO4 <- function(...) { 
+  K_H2SO4   <- PhysChemConst$K_H2SO4   
+  attr(K_H2SO4, "unit")     <- "molkg-soln"
+  attr(K_H2SO4, "pH scale") <- "free" 
+  return(K_H2SO4)
+}
+K_HS <- function(...) { 
+  K_HS       <- PhysChemConst$K_HS 
+  attr(K_HS, "unit")     <-  "molkg-soln"
+  attr(K_HS, "pH scale") <- "free" 
+  return(K_HS)
+}  
 
 ######################################################################################
 # acid dissociation constants

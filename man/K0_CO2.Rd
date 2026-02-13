@@ -1,6 +1,6 @@
 \name{K0_CO2}
 \alias{K0_CO2}
-\title{K0\_CO2}
+\title{K0_CO2}
 \description{PUBLIC function: calculates the Henry's constant (solubility) for CO2}
 \usage{K0_CO2(S, t)}
 \arguments{

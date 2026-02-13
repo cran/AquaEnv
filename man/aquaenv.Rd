@@ -10,7 +10,7 @@
         speciation=TRUE, dsa=FALSE, ae=NULL, from.data.frame=FALSE,
         SumH2SO4_Koffset=0, SumHF_Koffset=0, revelle=FALSE, skeleton=FALSE,
         k_w=NULL, k_co2=NULL, k_hco3=NULL, k_boh3=NULL, k_hso4=NULL,
-        k_hf=NULL, k1k2="lueker", khf="dickson", khso4="dickson", 
+        k_hf=NULL, k1k2="roy", khf="dickson", khso4="dickson", 
         fCO2atm=0.000400, fO2atm=0.20946)}
 \arguments{
   \item{S }{salinity in practical salinity units (i.e. no unit)}
@@ -49,18 +49,18 @@
   \item{SumHF_Koffset }{only used internally to calculate dTAdKdKdSumHF}
   \item{revelle }{flag: TRUE = the revelle factor is numerically calculated. We do however strongly encourage to use the analytical calculation from BufferFactors$RF}
   \item{skeleton }{flag: TRUE = a reduced amount of information is calculated yielding a smaller object of type aquaenv}
-  \item{k_w}{a fixed K\_W can be specified}
-  \item{k_co2}{a fixed K\_CO2 can be specified; used for TA fitting: give a K\_CO2 and NOT calculate it from T and S: i.e. K\_CO2 can be fitted in the routine as well}
-  \item{k_hco3}{a fixed K\_HCO3 can be specified}
-  \item{k_boh3}{a fixed K\_BOH3 can be specified}
-  \item{k_hso4}{a fixed K\_HSO4 can be specified}
-  \item{k_hf}{a fixed K\_HF can be specified}
+  \item{k_w}{a fixed K_W can be specified}
+  \item{k_co2}{a fixed K_CO2 can be specified; used for TA fitting: give a K_CO2 and NOT calculate it from T and S: i.e. K_CO2 can be fitted in the routine as well}
+  \item{k_hco3}{a fixed K_HCO3 can be specified}
+  \item{k_boh3}{a fixed K_BOH3 can be specified}
+  \item{k_hso4}{a fixed K_HSO4 can be specified}
+  \item{k_hf}{a fixed K_HF can be specified}
   \item{k1k2}{either "lueker" (default, Lueker2000), "roy" (Roy1993a), 
-    or "millero" (Millero2006) for K\_CO2 and K\_HCO3.}
+    or "millero" (Millero2006) for K_CO2 and K_HCO3.}
   \item{khf}{either "dickson" (default, Dickson1979a) or "perez"
-    (Perez1987a) for K\_HF}
+    (Perez1987a) for K_HF}
   \item{khso4}{either "dickson" (default, Dickson1990) or "khoo" (Khoo1977) for
-    K\_HSO4}
+    K_HSO4}
   \item{fCO2atm}{atmospheric fugacity of CO2 in atm, default =
     0.000400 atm}
   \item{fO2atm}{atmospheric fugacity of O2 in atm, default =
@@ -255,16 +255,16 @@ plot(ae, xval=p, xlab="gauge pressure/bar", newdevice=FALSE)
               "Mg"               "Ca"               "K"               
               "Sr"               "molal2molin"      "free2tot"        
               "free2sws"         "tot2free"         "tot2sws"         
-              "sws2free"         "sws2tot"          "K0\_CO2"          
-              "K0\_O2"           "fCO2atm"          "fO2atm"
-	      "CO2\_sat"          "O2\_sat"
-              "K\_W"              "K\_HSO4"           "K\_HF"            
-              "K\_CO2"            "K\_HCO3"           "K\_BOH3"          
-              "K\_NH4"            "K\_H2S"            "K\_H3PO4"         
-              "K\_H2PO4"          "K\_HPO4"           "K\_SiOH4"         
-              "K\_SiOOH3"         "K\_HNO2"           "K\_HNO3"          
-              "K\_H2SO4"          "K\_HS"             "Ksp\_calcite"     
-              "Ksp\_aragonite"    "TA"               "pH"              
+              "sws2free"         "sws2tot"          "K0_CO2"          
+              "K0_O2"           "fCO2atm"          "fO2atm"
+	      "CO2_sat"          "O2_sat"
+              "K_W"              "K_HSO4"           "K_HF"            
+              "K_CO2"            "K_HCO3"           "K_BOH3"          
+              "K_NH4"            "K_H2S"            "K_H3PO4"         
+              "K_H2PO4"          "K_HPO4"           "K_SiOH4"         
+              "K_SiOOH3"         "K_HNO2"           "K_HNO3"          
+              "K_H2SO4"          "K_HS"             "Ksp_calcite"     
+              "Ksp_aragonite"    "TA"               "pH"              
               "fCO2"             "CO2"              "HCO3"            
               "CO3"              "BOH3"             "BOH4"            
               "OH"               "H3PO4"            "H2PO4"           
@@ -274,7 +274,7 @@ plot(ae, xval=p, xlab="gauge pressure/bar", newdevice=FALSE)
               "NH3"              "H2SO4"            "HSO4"            
               "SO4"              "HF"               "F"               
               "HNO3"             "NO3"              "HNO2"            
-              "NO2"              "omega\_calcite"    "omega\_aragonite" 
+              "NO2"              "omega_calcite"    "omega_aragonite" 
               "revelle"          "c1"               "c2"              
               "c3"               "dTAdSumCO2"       "b1"              
               "b2"               "dTAdSumBOH3"      "so1"             

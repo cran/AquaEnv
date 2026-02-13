@@ -1,10 +1,20 @@
 Package: AquaEnv
-Version: 1.0-4
+Version: 1.0-5
 Title: Integrated Development Toolbox for Aquatic Chemical Model
         Generation
-Author: Andreas F. Hofmann, Karline Soetaert, Filip J.R. Meysman, 
-        Mathilde Hagens
-Maintainer: Karline Soetaert <Karline.Soetaert@nioz.nl>
+Authors@R: c(person(given = c("Andreas", "F."),
+                        family = "Hofmann",
+                        role = "aut"),
+                 person(given = "Karline",
+                        family = "Soetaert",
+                        role = c("aut", "cre"),
+                        email = "karline.soetaert@nioz.nl"),
+                 person(given = c("Filip", "J.R."),
+                        family = "Meysman",
+                        role = "aut"),
+                 person(given = "Mathilde",
+                        family = "Hagens",
+                        role = "aut"))
 Depends: R (>= 2.15.0)
 Imports: minpack.lm, graphics, grDevices, stats
 Suggests: deSolve
@@ -20,9 +30,11 @@ Description: Toolbox for the experimental aquatic chemist, focused on
 License: GPL (>= 2)
 LazyData: yes
 Repository: CRAN
-Date/Publication: 2016-09-06 16:39:52
 NeedsCompilation: no
-Repository/R-Forge/Project: aquaenv
-Repository/R-Forge/Revision: 97
-Repository/R-Forge/DateTimeStamp: 2016-09-05 13:48:52
-Packaged: 2016-09-05 14:07:37 UTC; rforge
+Packaged: 2026-02-12 17:51:37 UTC; karlines
+Author: Andreas F. Hofmann [aut],
+  Karline Soetaert [aut, cre],
+  Filip J.R. Meysman [aut],
+  Mathilde Hagens [aut]
+Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
+Date/Publication: 2026-02-13 07:01:17 UTC

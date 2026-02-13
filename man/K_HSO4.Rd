@@ -1,6 +1,6 @@
 \name{K_HSO4}
 \alias{K_HSO4}
-\title{K\_HSO4}
+\title{K_HSO4}
 \description{PUBLIC function: calculates the dissociation constant of HSO4}
 \usage{K_HSO4(S, t, p=0, khso4="dickson")}
 \arguments{

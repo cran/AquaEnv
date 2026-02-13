@@ -77,9 +77,9 @@ cloneaquaenv <- function(aquaenv,             # object of class aquaenv
                          TA=NULL,             # optional new value for TA
                          pH=NULL,             # optional new value for pH
                          k_co2=NULL,          # used for TA fitting: give a K_CO2 and NOT calculate it from T and S: i.e. K_CO2 can be fitted in the routine as well
-                         k1k2="roy",          # either "roy" (default, Roy1993a) or "lueker" (Lueker2000, calculated with seacarb) for K\_CO2 and K\_HCO3
-                         khf="dickson",       # either "dickson" (default, Dickson1979a) or "perez" (Perez1987a, calculated with seacarb) for K\_HF}
-                         khso4="dickson")     # either 'dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K\_HSO4
+                         k1k2="roy",          # either "roy" (default, Roy1993a) or "lueker" (Lueker2000, calculated with seacarb) for K_CO2 and K_HCO3
+                         khf="dickson",       # either "dickson" (default, Dickson1979a) or "perez" (Perez1987a, calculated with seacarb) for K_HF}
+                         khso4="dickson")     # either 'dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K_HSO4
   {
     if (is.null(TA) && is.null(pH))
       {
@@ -128,8 +128,8 @@ convert.standard <- function(x,               # the object to be converted (pH v
                              p=0,             # gauge pressure (total pressure minus atmospheric pressure) in bars
                              SumH2SO4=NULL,   # total sulfate concentration in mol/kg-solution; if not supplied this is calculated from S
                              SumHF=NULL,      # total fluoride concentration in mol/kg-solution; if not supplied this is calculated from S
-                             khf="dickson",   # either "dickson" (default, Dickson1979a) or "perez" (Perez1987a) for K\_HF
-                             khso4="dickson") # either 'dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K\_HSO4
+                             khf="dickson",   # either "dickson" (default, Dickson1979a) or "perez" (Perez1987a) for K_HF
+                             khso4="dickson") # either 'dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K_HSO4
   {
     result <- (switch
                (vartype,
@@ -303,7 +303,7 @@ scaleconvert <- function(S,                    # salinity S in practical salinit
                          SumH2SO4=NULL,        # total sulfate concentration in mol/kg-solution; if not supplied this is calculated from S
                          SumHF=NULL,           # total fluoride concentration in mol/kg-solution; if not supplied this is calculated from S
                          khf="dickson",        # either "dickson" (Dickson1979a) or "perez" (Perez1987a) for K_HF
-                         khso4="dickson")      # either 'dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K\_HSO4
+                         khso4="dickson")      # either 'dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K_HSO4
   {
     if (is.null(SumH2SO4))
       {

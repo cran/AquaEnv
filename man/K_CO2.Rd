@@ -1,6 +1,6 @@
 \name{K_CO2}
 \alias{K_CO2}
-\title{K\_CO2}
+\title{K_CO2}
 \description{PUBLIC function: calculates the dissociation constant of CO2}
 \usage{K_CO2(S, t, p=0, SumH2SO4=NULL, SumHF=NULL, k1k2="lueker", khf="dickson", khso4="dickson")}
 \arguments{
@@ -13,8 +13,8 @@
   \item{k1k2 }{"lueker", "roy", or "millero": specifies the S, t,
     dependency to be used. Default is "lueker". (see section below for
     references)}
-  \item{khf}{S, t relation for K\_HF needed for scale conversion: either "dickson" (default, Dickson1979a) or "perez" (Perez1987a)}
-  \item{khso4}{S, t relation for K\_HSO4 needed for scale conversion: either "dickson" (default, Dickson1990) or "khoo" (Khoo1977)}
+  \item{khf}{S, t relation for K_HF needed for scale conversion: either "dickson" (default, Dickson1979a) or "perez" (Perez1987a)}
+  \item{khso4}{S, t relation for K_HSO4 needed for scale conversion: either "dickson" (default, Dickson1990) or "khoo" (Khoo1977)}
 }
 \value{
   the dissociation constant of CO2 in mol/kg-solution on the free proton pH scale

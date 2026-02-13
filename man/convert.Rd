@@ -15,8 +15,8 @@ convert(x, from, to, factor, convattr)}}
   \item{p }{only valid if x is a single value: gauge pressure (total pressure minus atmospheric pressure) in bars}
   \item{SumH2SO4 }{only valid if x is a single value: total sulfate concentration in mol/kg-solution; if not supplied this is calculated from S}
   \item{SumHF }{only valid if x is a single value: total fluoride concentration in mol/kg-solution; if not supplied this is calculated from S}
-  \item{khf}{only valid if x is a single value: either "dickson" (default, Dickson1979a) or "perez" (Perez1987a) for K\_HF}
-  \item{khso4}{only valid if x is a single value: either "dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K\_HSO4}
+  \item{khf}{only valid if x is a single value: either "dickson" (default, Dickson1979a) or "perez" (Perez1987a) for K_HF}
+  \item{khso4}{only valid if x is a single value: either "dickson" (default, Dickson1990) or "khoo" (Khoo1977) for K_HSO4}
   \item{from }{only valid if x is an object of class aquaenv: the unit which needs to be converted (as a string; must be a perfect match)}
   \item{to }{only valid if x is an object of class aquaenv: the unit to which the conversion should go}
   \item{factor }{only valid if x is an object of class aquaenv: the conversion factor to be applied: can either be a number (e.g. 1000 to convert from mol to mmol), or any of the conversion factors given in an object of class  aquaenv}

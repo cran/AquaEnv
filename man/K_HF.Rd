@@ -1,6 +1,6 @@
 \name{K_HF}
 \alias{K_HF}
-\title{K\_HF}
+\title{K_HF}
 \description{PUBLIC function: calculates the dissociation constant of HF}
 \usage{K_HF(S, t, p=0, SumH2SO4=NULL, SumHF=NULL, khf="dickson", khso4="dickson")}
 \arguments{
@@ -14,7 +14,7 @@
   \item{khf }{"dickson" or "perez": specifies the S, t,
     dependency to be used. Default is "dickson". (see section below for
     references)}
-  \item{khso4}{S, t relation for K\_HSO4 needed for scale conversion: either "dickson" (default, Dickson1990) or "khoo" (Khoo1977)}
+  \item{khso4}{S, t relation for K_HSO4 needed for scale conversion: either "dickson" (default, Dickson1990) or "khoo" (Khoo1977)}
 }
 \value{
   the dissociation constant of HF in mol/kg-solution on the free proton pH scale

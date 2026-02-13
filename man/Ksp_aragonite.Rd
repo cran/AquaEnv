@@ -1,6 +1,6 @@
 \name{Ksp_aragonite}
 \alias{Ksp_aragonite}
-\title{Ksp\_aragonite}
+\title{Ksp_aragonite}
 \description{PUBLIC function: calculates the solubility product for aragonite}
 \usage{Ksp_aragonite(S, t, p=0)}
 \arguments{

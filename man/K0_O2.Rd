@@ -1,6 +1,6 @@
 \name{K0_O2}
 \alias{K0_O2}
-\title{K0\_O2}
+\title{K0_O2}
 \description{PUBLIC function: calculates the Henry's constant (solubility) for O2}
 \usage{K0_O2(S, t)}
 \arguments{

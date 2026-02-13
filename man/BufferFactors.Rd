@@ -30,18 +30,18 @@
   "H2SO4", "HSO4", "SO4", "HF", "F", "HNO3", "NO3", "HNO2", "NO2". 
   Default is c("SumCO2"). This vector defines the species for which the
   sensitivities are calculated}
-  \item{k_w}{a fixed K\_W can be specified}
-  \item{k_co2}{a fixed K\_CO2 can be specified}
-  \item{k_hco3}{a fixed K\_HCO3 can be specified}
-  \item{k_boh3}{a fixed K\_BOH3 can be specified}
-  \item{k_hso4}{a fixed K\_HSO4 can be specified}
-  \item{k_hf}{a fixed K\_HF can be specified}
+  \item{k_w}{a fixed K_W can be specified}
+  \item{k_co2}{a fixed K_CO2 can be specified}
+  \item{k_hco3}{a fixed K_HCO3 can be specified}
+  \item{k_boh3}{a fixed K_BOH3 can be specified}
+  \item{k_hso4}{a fixed K_HSO4 can be specified}
+  \item{k_hf}{a fixed K_HF can be specified}
   \item{k1k2}{either "lueker" (default, Lueker2000), "roy" (Roy1993a),
-    or "millero" (Millero2006) for K\_CO2 and K\_HCO3}
+    or "millero" (Millero2006) for K_CO2 and K_HCO3}
   \item{khf}{either "dickson" (default, Dickson1979a) or "perez"
-    (Perez1987a) for K\_HF}
+    (Perez1987a) for K_HF}
   \item{khso4}{either "dickson" (default, Dickson1990) or "khoo" 
-    (Khoo1977) for K\_HSO4}
+    (Khoo1977) for K_HSO4}
 }
 \examples{\dontrun{
 # Default run
